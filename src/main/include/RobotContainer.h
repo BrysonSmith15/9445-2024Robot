@@ -11,6 +11,7 @@
 #include <frc2/command/button/CommandJoystick.h>
 
 #include "Constants.h"
+#include "LEDs.h"
 #include "subsystems/Drivetrain.h"
 
 /**
@@ -44,7 +45,8 @@ class RobotContainer {
 */
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
-
+  // the LED strip is here
+  LEDs led{0, 300};
   void ConfigureBindings();
 
   // janky CANCoder power as a solenoid

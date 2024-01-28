@@ -40,10 +40,10 @@ class SwerveModule {
  private:
   static constexpr units::length::meter_t kWheelRadius = 2_in;
   static constexpr int turnEncoderResolution = 4096;
-  static constexpr int driveEncoderResolution = 42;
+  static constexpr int driveEncoderResolution = 4096;
   // TODO: make sure that this is true for turning and drive.
   // I honestly doubt that it is
-  static constexpr float gearRatio = 8.14 / 1.0;
+  static constexpr float gearRatio = 1.0 / 8.14;
 
   static constexpr auto kModuleMaxAngularVelocity =
       std::numbers::pi * (1_rad / 1_s);  // radians per second
@@ -57,14 +57,14 @@ class SwerveModule {
 
   ctre::phoenix6::hardware::CANcoder turnEncoder;
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
-      rev::SparkRelativeEncoder::Type::kHallSensor, 42);
+      rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
-  frc::PIDController drivePIDController{1.0, 0.0, 0.0};
+  frc::PIDController drivePIDController{3.0, 110.0, 0.0};
   // honestly, if the accel and velocity are tuned right, the
   // tuning should be fairly easy here.
   frc::ProfiledPIDController<units::radians> turningPIDController{
-      1.0,
-      0.0,
+      97.0,
+      150.0,
       0.0,
       {kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration}};
   // the feedforward controllers have been removed

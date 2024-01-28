@@ -45,7 +45,6 @@ units::length::foot_t SwerveModule::getDriveDistance() {
 void SwerveModule::resetDriveDistance() { this->driveEncoder.SetPosition(0); }
 
 units::velocity::feet_per_second_t SwerveModule::getDriveRate() {
-  // TODO: make this do units
   return (this->driveEncoder.GetVelocity() / this->driveEncoderResolution) *
          (2 * std::numbers::pi * this->kWheelRadius) / 1_s;
 }

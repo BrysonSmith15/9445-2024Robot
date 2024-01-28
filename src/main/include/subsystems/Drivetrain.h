@@ -38,7 +38,7 @@ class Drivetrain : public frc2::SubsystemBase {
   void setStates(wpi::array<frc::SwerveModuleState, 4U> states);
 
   units::angle::radian_t getGyroAngle();
-  units::velocity::meters_per_second_t MAXSPEED = 5.0_mps;
+  units::velocity::meters_per_second_t MAXSPEED = 0.5_mps;
   units::angular_velocity::radians_per_second_t MAXROT =
       (std::numbers::pi * 1_rad) / 2_s;
 
@@ -46,7 +46,6 @@ class Drivetrain : public frc2::SubsystemBase {
                                              brLocation};
 
  private:
-  // TODO: Do we need to use usb-c<->usb-a
   AHRS gyro{frc::SerialPort::kUSB1};
 
   const units::length::foot_t forwardDist = 10.5_in;
@@ -68,6 +67,4 @@ class Drivetrain : public frc2::SubsystemBase {
       this->getGyroAngle(),
       {flModule.GetPosition(), frModule.GetPosition(), blModule.GetPosition(),
        brModule.GetPosition()}};
-  // Components (e.g. motor controllers and sensors) should generally be
-  // declared private and exposed only through public methods.
 };

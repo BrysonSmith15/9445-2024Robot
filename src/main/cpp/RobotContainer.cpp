@@ -19,6 +19,11 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
+
+  // set the leds all to the BSHS orange color (from their website)
+  // if doing a pattern thing, probably make this a subsystem and make it a
+  this->led.set(1, 300, 216, 80, 36);
+  // tmp jank
   this->flEncoder.Set(true);
   this->frEncoder.Set(true);
   this->blEncoder.Set(true);
@@ -32,7 +37,7 @@ units::velocity::meters_per_second_t RobotContainer::getXState() {
   0.1)) .value() * this->drivetrain.MAXSPEED;
          */
   return frc::ApplyDeadband(this->driverController.GetX(), 0.1) *
-         this->drivetrain.MAXSPEED;
+         this->drivetrain.MAXSPEED / 2.0;
 }
 units::velocity::meters_per_second_t RobotContainer::getYState() {
   /*
@@ -42,7 +47,7 @@ units::velocity::meters_per_second_t RobotContainer::getYState() {
          this->drivetrain.MAXSPEED;
          */
   return frc::ApplyDeadband(this->driverController.GetY(), 0.1) *
-         this->drivetrain.MAXSPEED;
+         this->drivetrain.MAXSPEED / 2.0;
 }
 units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
   if (OperatorConstants::usingFieldOrientedTurn) {
@@ -87,7 +92,7 @@ units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
                this->drivetrain.MAXROT;
                */
     return frc::ApplyDeadband(this->driverController.GetZ(), 0.1) *
-           this->drivetrain.MAXROT;
+           this->drivetrain.MAXROT / 2.0;
   }
 }
 
