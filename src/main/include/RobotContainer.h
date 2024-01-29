@@ -13,6 +13,7 @@
 #include "Constants.h"
 #include "LEDs.h"
 #include "subsystems/Drivetrain.h"
+#include "subsystems/Elevator.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -45,13 +46,13 @@ class RobotContainer {
 */
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
+  // Elevator elevator;
   // the LED strip is here
-  LEDs led{0, 300};
+  LEDs led{0, 0, 299};
   void ConfigureBindings();
 
   // janky CANCoder power as a solenoid
   frc::PneumaticHub pneuHub{2};
-  // TODO: Change the solenoid ports
   frc::Solenoid flEncoder = this->pneuHub.MakeSolenoid(9);
   frc::Solenoid frEncoder = this->pneuHub.MakeSolenoid(8);
   frc::Solenoid blEncoder = this->pneuHub.MakeSolenoid(0);

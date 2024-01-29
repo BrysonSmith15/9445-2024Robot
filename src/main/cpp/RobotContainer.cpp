@@ -7,8 +7,10 @@
 
 #include "Constants.h"
 #include "RobotContainer.h"
+// commands
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
+#include "commands/ElevatorToSetpoint.h"
 
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
@@ -19,10 +21,9 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
-
+  this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
-  // if doing a pattern thing, probably make this a subsystem and make it a
-  this->led.set(1, 300, 216, 80, 36);
+  this->led.set(0, 299, 216, 80, 36);
   // tmp jank
   this->flEncoder.Set(true);
   this->frEncoder.Set(true);

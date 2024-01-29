@@ -1,6 +1,6 @@
 #include <LEDs.h>
 
-LEDs::LEDs(int stripStart, int stripEnd) {
+LEDs::LEDs(int pwmID, int stripStart, int stripEnd) : led{pwmID} {
   this->stripStart = stripStart;
   this->stripEnd = stripEnd;
 
