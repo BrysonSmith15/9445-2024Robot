@@ -65,11 +65,15 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   // could do feedforward stuff later, but it is not implemented here.
   auto turnOut = this->turningPIDController.Calculate(this->getTurnAngle(),
                                                       state.angle.Radians());
-
   frc::SmartDashboard::PutNumber("PreDriveOut", driveOut);
-  driveOut = driveOut > 1.0 ? 1.0 : driveOut;
-  driveOut = driveOut < -1.0 ? -1.0 : driveOut;
-  // driveOut = this->driveLimiter.Calculate(driveOut);
+  if (!this->drivePIDController.AtSetpoint()) {
+    driveOut = driveOut > 1.0 ? 1.0 : driveOut;
+    driveOut = driveOut < -1.0 ? -1.0 : driveOut;
+    driveOut = this->driveLimiter.Calculate(driveOut);
+  } else {
+    driveOut = 0.0;
+    this->drivePIDController.Reset();
+  }
   frc::SmartDashboard::PutNumber("DriveOut", driveOut);
   frc::SmartDashboard::PutNumber("TurnOut", turnOut);
   frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
