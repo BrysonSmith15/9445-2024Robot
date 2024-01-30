@@ -21,9 +21,9 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
-  this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
+  // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
-  this->led.set(0, 299, 216, 80, 36);
+  // this->led.set(0, 299, 216, 80, 36);
   // tmp jank
   this->flEncoder.Set(true);
   this->frEncoder.Set(true);
@@ -38,7 +38,7 @@ units::velocity::meters_per_second_t RobotContainer::getXState() {
   0.1)) .value() * this->drivetrain.MAXSPEED;
          */
   return frc::ApplyDeadband(this->driverController.GetX(), 0.1) *
-         this->drivetrain.MAXSPEED / 2.0;
+         this->drivetrain.MAXSPEED;
 }
 units::velocity::meters_per_second_t RobotContainer::getYState() {
   /*
@@ -48,7 +48,7 @@ units::velocity::meters_per_second_t RobotContainer::getYState() {
          this->drivetrain.MAXSPEED;
          */
   return frc::ApplyDeadband(this->driverController.GetY(), 0.1) *
-         this->drivetrain.MAXSPEED / 2.0;
+         this->drivetrain.MAXSPEED;
 }
 units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
   if (OperatorConstants::usingFieldOrientedTurn) {
@@ -93,7 +93,7 @@ units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
                this->drivetrain.MAXROT;
                */
     return frc::ApplyDeadband(this->driverController.GetZ(), 0.1) *
-           this->drivetrain.MAXROT / 2.0;
+           this->drivetrain.MAXROT;
   }
 }
 

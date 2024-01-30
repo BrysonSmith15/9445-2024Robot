@@ -8,6 +8,7 @@
 #include <frc/Encoder.h>
 #include <frc/controller/PIDController.h>
 #include <frc/controller/ProfiledPIDController.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc/kinematics/SwerveModulePosition.h>
 
 // units
@@ -40,7 +41,7 @@ class SwerveModule {
  private:
   static constexpr units::length::meter_t kWheelRadius = 2_in;
   static constexpr int turnEncoderResolution = 4096;
-  static constexpr int driveEncoderResolution = 4096;
+  static constexpr int driveEncoderResolution = 42;
   // TODO: make sure that this is true for turning and drive.
   // I honestly doubt that it is
   static constexpr float gearRatio = 1.0 / 8.14;
@@ -59,8 +60,9 @@ class SwerveModule {
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
       rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
-  frc::PIDController drivePIDController{3.0, 110.0, 0.0};
-  // honestly, if the accel and velocity are tuned right, the
+  frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 1_s};
+  frc::PIDController drivePIDController{0.3, 0.5, 0.0};
+  // honestly, if the accel and velocity are tuned right, the0
   // tuning should be fairly easy here.
   frc::ProfiledPIDController<units::radians> turningPIDController{
       97.0,

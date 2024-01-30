@@ -6,7 +6,7 @@
 
 Elevator::Elevator()
     : encoder{this->motorL.GetEncoder(
-          rev::SparkMaxRelativeEncoder::EncoderType::kQuadrature, 8192)} {
+          rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} {
   this->motorR.Follow(this->motorL, true);
   this->elevationController.SetTolerance(250);
 }

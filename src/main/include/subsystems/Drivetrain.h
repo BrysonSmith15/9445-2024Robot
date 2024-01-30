@@ -38,7 +38,7 @@ class Drivetrain : public frc2::SubsystemBase {
   void setStates(wpi::array<frc::SwerveModuleState, 4U> states);
 
   units::angle::radian_t getGyroAngle();
-  units::velocity::meters_per_second_t MAXSPEED = 0.5_mps;
+  units::velocity::meters_per_second_t MAXSPEED = 1_mps;
   units::angular_velocity::radians_per_second_t MAXROT =
       (std::numbers::pi * 1_rad) / 2_s;
 

@@ -2,10 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include <SwerveModule.h>
 #include <frc/kinematics/SwerveModuleState.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/CANSparkLowLevel.h>
 #include <units/time.h>
+
+#include "SwerveModule.h"
 
 SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
                            int turnEncoderCANID)
@@ -14,6 +16,9 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
       turnEncoder(turnEncoderCANID) {
   this->turningPIDController.EnableContinuousInput(-std::numbers::pi * 1_rad,
                                                    std::numbers::pi * 1_rad);
+  this->resetDriveDistance();
+  this->drivePIDController.SetTolerance(10);
+  this->drivePIDController.SetIZone(1.0);
 }
 
 void SwerveModule::stop() {
@@ -25,9 +30,7 @@ void SwerveModule::stop() {
 
 units::angle::radian_t SwerveModule::getTurnAngle() {
   // this is normalized to [-pi, pi]
-  return frc::AngleModulus(
-      (this->turnEncoder.GetPosition().GetValue() / this->gearRatio) /
-      this->turnEncoderResolution * 2 * std::numbers::pi);
+  return this->turnEncoder.GetAbsolutePosition().GetValue();
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition() {
@@ -39,14 +42,14 @@ void SwerveModule::resetTurnAngle() { this->turnEncoder.SetPosition(0_rad); }
 units::length::foot_t SwerveModule::getDriveDistance() {
   // (number of rotations) * (wheel circumfrence)
   return (this->driveEncoder.GetPosition() / this->driveEncoderResolution) *
-         (2 * std::numbers::pi * this->kWheelRadius);
+         this->gearRatio * (2 * std::numbers::pi * this->kWheelRadius);
 }
 
 void SwerveModule::resetDriveDistance() { this->driveEncoder.SetPosition(0); }
 
 units::velocity::feet_per_second_t SwerveModule::getDriveRate() {
-  return (this->driveEncoder.GetVelocity() / this->driveEncoderResolution) *
-         (2 * std::numbers::pi * this->kWheelRadius) / 1_s;
+  return -(this->driveEncoder.GetVelocity() / this->driveEncoderResolution) *
+         this->gearRatio * this->kWheelRadius / 1_s;
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {
@@ -57,16 +60,28 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   // ! turn > pi/2_rad
   const auto state =
       frc::SwerveModuleState::Optimize(refState, this->getTurnAngle());
-  const auto driveOut = this->drivePIDController.Calculate(
+  auto driveOut = this->drivePIDController.Calculate(
       this->getDriveRate().value(), state.speed.value());
   // could do feedforward stuff later, but it is not implemented here.
-  const auto turnOut = this->turningPIDController.Calculate(
-      this->getTurnAngle(), state.angle.Radians());
+  auto turnOut = this->turningPIDController.Calculate(this->getTurnAngle(),
+                                                      state.angle.Radians());
 
-  // decide which set mode is the best. (probably % (currently in use) or
-  // Voltage)
+  frc::SmartDashboard::PutNumber("PreDriveOut", driveOut);
+  driveOut = driveOut > 1.0 ? 1.0 : driveOut;
+  driveOut = driveOut < -1.0 ? -1.0 : driveOut;
+  // driveOut = this->driveLimiter.Calculate(driveOut);
+  frc::SmartDashboard::PutNumber("DriveOut", driveOut);
+  frc::SmartDashboard::PutNumber("TurnOut", turnOut);
+  frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
+  frc::SmartDashboard::PutNumber("turnSetpoint", state.angle.Degrees().value());
+  frc::SmartDashboard::PutNumber("driveRate", this->getDriveRate().value());
+  frc::SmartDashboard::PutNumber("turnAngle", this->getTurnAngle().value());
+  frc::SmartDashboard::PutNumber("Encoder Value",
+                                 this->driveEncoder.GetPosition());
+  frc::SmartDashboard::PutNumber("Encoder Velocity",
+                                 this->driveEncoder.GetVelocity());
   this->driveMotor.Set(driveOut);
-  this->turnMotor.Set(turnOut);
+  // this->turnMotor.Set(turnOut);
 }
 
 /*

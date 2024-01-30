@@ -43,5 +43,5 @@ class Elevator : public frc2::SubsystemBase {
   frc::DigitalInput topLimit{0};
   frc::DigitalInput botLimit{1};
 
-  rev::SparkMaxRelativeEncoder encoder;
+  rev::SparkRelativeEncoder encoder;
 };

@@ -23,19 +23,21 @@ DriveCommand::DriveCommand(
 }
 
 void DriveCommand::Execute() {
-  // assumes field oriented
-  auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
-      frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-          this->xTranslation(), this->yTranslation(), this->theta(),
-          this->drivetrain->getGyroAngle()));
+  if (this->ticks > 250) {
+    // assumes field oriented
+    auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
+        frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+            this->xTranslation(), this->yTranslation(), this->theta(),
+            this->drivetrain->getGyroAngle()));
 
-  this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
-      &states, this->drivetrain->MAXSPEED);
+    this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
+        &states, this->drivetrain->MAXSPEED);
 
-  this->drivetrain->setStates(states);
-  frc::SmartDashboard::PutNumber("XTranslation", this->xTranslation().value());
-  frc::SmartDashboard::PutNumber("YTranslation", this->yTranslation().value());
-  frc::SmartDashboard::PutNumber("Theta", this->theta().value());
+    this->drivetrain->setStates(states);
+  } else {
+    ticks++;
+    frc::SmartDashboard::PutNumber("Ticks", this->ticks);
+  }
 }
 
 void DriveCommand::End(bool interrupted) { this->drivetrain->Stop(); }
