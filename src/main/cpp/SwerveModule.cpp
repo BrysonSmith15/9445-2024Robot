@@ -17,8 +17,14 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
   this->turningPIDController.EnableContinuousInput(-std::numbers::pi * 1_rad,
                                                    std::numbers::pi * 1_rad);
   this->resetDriveDistance();
-  this->drivePIDController.SetTolerance(10);
-  this->drivePIDController.SetIZone(1.0);
+  // could tune based on
+  // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/C%2B%2B/Velocity%20PID%20Control/src/main/cpp/Robot.cpp
+  this->drivePIDController.SetP(0.3);
+  this->drivePIDController.SetI(0.5);
+  this->drivePIDController.SetD(0.0);
+  this->drivePIDController.SetOutputRange(-1, 1);
+  this->drivePIDController.SetSmartMotionAllowedClosedLoopError(0.25);
+
   this->driveEncoder.SetPositionConversionFactor(this->gearRatio);
   this->driveEncoder.SetVelocityConversionFactor(this->gearRatio);
 }
@@ -62,21 +68,11 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   // ! turn > pi/2_rad
   const auto state =
       frc::SwerveModuleState::Optimize(refState, this->getTurnAngle());
-  auto driveOut = this->drivePIDController.Calculate(
-      this->getDriveRate().value(), state.speed.value());
+  auto driveOut = this->drivePIDController.SetReference(
+      this->getDriveRate().value(), rev::CANSparkMax::ControlType::kVelocity);
   // could do feedforward stuff later, but it is not implemented here.
   auto turnOut = this->turningPIDController.Calculate(this->getTurnAngle(),
                                                       state.angle.Radians());
-  frc::SmartDashboard::PutNumber("PreDriveOut", driveOut);
-  if (!this->drivePIDController.AtSetpoint()) {
-    driveOut = driveOut > 1.0 ? 1.0 : driveOut;
-    driveOut = driveOut < -1.0 ? -1.0 : driveOut;
-    driveOut = this->driveLimiter.Calculate(driveOut);
-  } else {
-    driveOut = 0.0;
-    this->drivePIDController.Reset();
-  }
-  frc::SmartDashboard::PutNumber("DriveOut", driveOut);
   frc::SmartDashboard::PutNumber("TurnOut", turnOut);
   frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
   frc::SmartDashboard::PutNumber("turnSetpoint", state.angle.Degrees().value());
@@ -86,7 +82,6 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
                                  this->driveEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("Encoder Velocity",
                                  this->driveEncoder.GetVelocity());
-  this->driveMotor.Set(driveOut);
   // this->turnMotor.Set(turnOut);
 }
 

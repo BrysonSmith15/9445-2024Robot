@@ -19,6 +19,7 @@
 
 // rev
 #include <rev/CANSparkMax.h>
+#include <rev/SparkPIDController.h>
 
 // ctre
 #include <ctre/phoenix6/CANcoder.hpp>
@@ -57,8 +58,8 @@ class SwerveModule {
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
       rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
+  rev::SparkPIDController drivePIDController = driveMotor.GetPIDController();
   frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 1_s};
-  frc::PIDController drivePIDController{0.3, 0.5, 0.0};
   // honestly, if the accel and velocity are tuned right, the0
   // tuning should be fairly easy here.
   frc::ProfiledPIDController<units::radians> turningPIDController{
