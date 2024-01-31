@@ -23,12 +23,13 @@ DriveCommand::DriveCommand(
 }
 
 void DriveCommand::Execute() {
-  if (this->ticks > 125) {
+  if (this->ticks > 250) {
     // assumes field oriented
     auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
         frc::ChassisSpeeds::FromFieldRelativeSpeeds(
             this->xTranslation(), this->yTranslation(), this->theta(),
             this->drivetrain->getGyroAngle()));
+
     this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
         &states, this->drivetrain->MAXSPEED);
 
