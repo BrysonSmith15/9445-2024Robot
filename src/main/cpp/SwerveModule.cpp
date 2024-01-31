@@ -19,6 +19,8 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
   this->resetDriveDistance();
   this->drivePIDController.SetTolerance(10);
   this->drivePIDController.SetIZone(1.0);
+  this->driveEncoder.SetPositionConversionFactor(this->gearRatio);
+  this->driveEncoder.SetVelocityConversionFactor(this->gearRatio);
 }
 
 void SwerveModule::stop() {
@@ -42,14 +44,14 @@ void SwerveModule::resetTurnAngle() { this->turnEncoder.SetPosition(0_rad); }
 units::length::foot_t SwerveModule::getDriveDistance() {
   // (number of rotations) * (wheel circumfrence)
   return (this->driveEncoder.GetPosition() / this->driveEncoderResolution) *
-         this->gearRatio * (2 * std::numbers::pi * this->kWheelRadius);
+         (2 * std::numbers::pi * this->kWheelRadius);
 }
 
 void SwerveModule::resetDriveDistance() { this->driveEncoder.SetPosition(0); }
 
 units::velocity::feet_per_second_t SwerveModule::getDriveRate() {
   return -(this->driveEncoder.GetVelocity() / this->driveEncoderResolution) *
-         this->gearRatio * this->kWheelRadius / 1_s;
+         (2 * std::numbers::pi * this->kWheelRadius) / 1_s;
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {

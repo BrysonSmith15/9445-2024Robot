@@ -18,7 +18,6 @@
 #include <units/velocity.h>
 
 // rev
-#include <rev/CANEncoder.h>
 #include <rev/CANSparkMax.h>
 
 // ctre
@@ -42,8 +41,6 @@ class SwerveModule {
   static constexpr units::length::meter_t kWheelRadius = 2_in;
   static constexpr int turnEncoderResolution = 4096;
   static constexpr int driveEncoderResolution = 42;
-  // TODO: make sure that this is true for turning and drive.
-  // I honestly doubt that it is
   static constexpr float gearRatio = 1.0 / 8.14;
 
   static constexpr auto kModuleMaxAngularVelocity =
