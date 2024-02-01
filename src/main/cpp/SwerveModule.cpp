@@ -78,9 +78,14 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   */
   double driveOut = this->driveLimiter.Calculate(state.speed.value());
   // could do feedforward stuff later, but it is not implemented here.
+<<<<<<< HEAD
   auto turnOut = this->turningPIDController.Calculate(
       this->getTurnAngle() / std::numbers::pi,
       state.angle.Radians() / std::numbers::pi);
+=======
+  auto turnOut = this->turningPIDController.Calculate(this->getTurnAngle(),
+                                                      state.angle.Radians());
+>>>>>>> 814e6ffe2a276364ae801d294fac18d6893070cf
   frc::SmartDashboard::PutNumber("DriveOutV",
                                  this->driveMotor.GetAppliedOutput());
   frc::SmartDashboard::PutNumber("DriveOut",
