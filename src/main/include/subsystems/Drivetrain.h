@@ -56,11 +56,12 @@ class Drivetrain : public frc2::SubsystemBase {
   frc::Translation2d blLocation{-forwardDist, horizontalDist};
   frc::Translation2d brLocation{-forwardDist, -horizontalDist};
 
+  bool leftInverted = false;
   // drive, turnMotor, turnEncoder
-  SwerveModule flModule{14, 12, 13};
-  SwerveModule frModule{11, 9, 10};
-  SwerveModule blModule{17, 15, 16};
-  SwerveModule brModule{8, 6, 7};
+  SwerveModule flModule{14, 12, 13, leftInverted, leftInverted};
+  SwerveModule frModule{11, 9, 10, !leftInverted, !leftInverted};
+  SwerveModule blModule{17, 15, 16, leftInverted, leftInverted};
+  SwerveModule brModule{8, 6, 7, !leftInverted, !leftInverted};
 
   frc::SwerveDriveOdometry<4> m_odometry{
       m_kinematics,

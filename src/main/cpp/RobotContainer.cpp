@@ -99,8 +99,8 @@ units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
 
 void RobotContainer::ConfigureBindings() {
   // Logitech Controller on XInput
-  this->driverController.SetXChannel(0);
-  this->driverController.SetYChannel(1);
+  this->driverController.SetXChannel(1);
+  this->driverController.SetYChannel(0);
   this->driverController.SetZChannel(5);
   this->driverController.SetTwistChannel(4);
   // Configure your trigger bindings here
