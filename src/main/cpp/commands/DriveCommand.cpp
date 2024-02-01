@@ -30,8 +30,8 @@ void DriveCommand::Execute() {
             this->xTranslation(), this->yTranslation(), this->theta(),
             this->drivetrain->getGyroAngle()));
 
-    this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
-        &states, this->drivetrain->MAXSPEED);
+    // this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
+    // &states, this->drivetrain->MAXSPEED);
 
     this->drivetrain->setStates(states);
   } else {
