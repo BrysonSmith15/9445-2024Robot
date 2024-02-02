@@ -63,10 +63,11 @@ class SwerveModule {
   // honestly, if the accel and velocity are tuned right, the0
   // tuning should be fairly easy here.
   frc::ProfiledPIDController<units::radians> turningPIDController{
-      97.0,
-      150.0,
+      6e-5,
+      1e-6,
       0.0,
       {kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration}};
+  frc::SlewRateLimiter<units::scalar> turnLimiter{std::numbers::pi / 2_s};
   // the feedforward controllers have been removed
   // because they are going to be a pain to tune
   // and potentially not worth it at all.
