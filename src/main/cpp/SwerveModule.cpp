@@ -20,11 +20,6 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
   this->resetDriveDistance();
   // could tune based on
   // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/C%2B%2B/Velocity%20PID%20Control/src/main/cpp/Robot.cpp
-  this->drivePIDController.SetP(6e-5);
-  this->drivePIDController.SetI(1e-6);
-  this->drivePIDController.SetD(0.0);
-  this->drivePIDController.SetOutputRange(-1, 1);
-
   this->driveEncoder.SetPositionConversionFactor(this->gearRatio);
   this->driveEncoder.SetVelocityConversionFactor(this->gearRatio);
   this->driveMotor.SetInverted(driveInverted);
@@ -76,6 +71,13 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
           .SetReference(this->driveLimiter.Calculate(refState.speed.value()),
                         rev::CANSparkMax::ControlType::kVoltage);
   */
+  /*
+  // uses PID for Drive
+  double driveOut = this->drivePIDController.Calculate(
+      this->getDriveRate().value(),
+      this->driveLimiter.Calculate(state.speed.value()));
+  */
+  // ! use PID for Drive
   double driveOut = this->driveLimiter.Calculate(state.speed.value());
   double turnOut = this->turningPIDController.Calculate(
       this->getTurnAngle() / std::numbers::pi,

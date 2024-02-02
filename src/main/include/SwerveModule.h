@@ -58,7 +58,7 @@ class SwerveModule {
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
       rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
-  rev::SparkPIDController drivePIDController = driveMotor.GetPIDController();
+  frc::PIDController drivePIDController{6e-5, 1e-6, 0.0};
   frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 1_s};
   // honestly, if the accel and velocity are tuned right, the0
   // tuning should be fairly easy here.
