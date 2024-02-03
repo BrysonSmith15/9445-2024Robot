@@ -81,7 +81,7 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   double driveOut = this->driveLimiter.Calculate(state.speed.value());
   double turnOut = this->turningPIDController.Calculate(
       this->getTurnAngle() / std::numbers::pi,
-      this->turnLimiter.Calculate(state.angle.Radians() / std::numbers::pi));
+      this->turnLimiter.Calculate(state.angle.Radians().value()) * 1_rad);
 
   frc::SmartDashboard::PutNumber("PreTurnOut", turnOut);
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
