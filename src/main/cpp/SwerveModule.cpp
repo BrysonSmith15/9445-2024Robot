@@ -58,7 +58,7 @@ units::velocity::feet_per_second_t SwerveModule::getDriveRate() {
 }
 
 frc::SwerveModuleState SwerveModule::GetState() {
-  return {this->getDriveRate(), this->getTurnAngle()};
+  return {this->getDriveRate(), frc::Rotation2d{this->getTurnAngle()}};
 }
 
 void SwerveModule::setState(const frc::SwerveModuleState& refState) {

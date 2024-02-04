@@ -29,11 +29,9 @@ void DriveCommand::Execute() {
   frc::SmartDashboard::PutNumber("YTranslation", this->yTranslation().value());
   frc::SmartDashboard::PutNumber("Theta", this->theta().value());
   auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
-      frc::ChassisSpeeds::Discretize(
-          frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-              this->xTranslation(), this->yTranslation(), this->theta(),
-              frc::Rotation2d{this->drivetrain->getGyroAngle()}),
-          units::time::millisecond_t{20.0}));
+      frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+          this->xTranslation(), this->yTranslation(), this->theta(),
+          frc::Rotation2d{this->drivetrain->getGyroAngle()}));
 
   this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
       &states, this->drivetrain->MAXSPEED);
