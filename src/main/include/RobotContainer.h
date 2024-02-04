@@ -42,19 +42,12 @@ class RobotContainer {
   /*
   frc::SlewRateLimiter<units::scalar> xLimiter{1 / 1_s};
   frc::SlewRateLimiter<units::scalar> yLimiter{1 / 1_s};
-  frc::SlewRateLimiter<units::scalar> thetaLimiter{1 / 1_s};
-*/
+  */
+  frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 1_s};
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
   // Elevator elevator;
   // the LED strip is here
   // LEDs led{0, 0, 299};
   void ConfigureBindings();
-
-  // janky CANCoder power as a solenoid
-  frc::PneumaticHub pneuHub{2};
-  frc::Solenoid flEncoder = this->pneuHub.MakeSolenoid(9);
-  frc::Solenoid frEncoder = this->pneuHub.MakeSolenoid(8);
-  frc::Solenoid blEncoder = this->pneuHub.MakeSolenoid(0);
-  frc::Solenoid brEncoder = this->pneuHub.MakeSolenoid(1);
 };

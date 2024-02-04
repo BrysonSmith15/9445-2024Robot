@@ -21,14 +21,12 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
+  // if (this->driverController.Button(1).Get()) {
+  // this->drivetrain.resetYaw();
+  // }
   // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
   // this->led.set(0, 299, 216, 80, 36);
-  // tmp jank
-  this->flEncoder.Set(true);
-  this->frEncoder.Set(true);
-  this->blEncoder.Set(true);
-  this->brEncoder.Set(true);
 }
 
 units::velocity::meters_per_second_t RobotContainer::getXState() {
@@ -47,7 +45,7 @@ units::velocity::meters_per_second_t RobotContainer::getYState() {
              .value() *
          this->drivetrain.MAXSPEED;
          */
-  return frc::ApplyDeadband(this->driverController.GetY(), 0.1) *
+  return -frc::ApplyDeadband(this->driverController.GetY(), 0.1) *
          this->drivetrain.MAXSPEED;
 }
 units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
@@ -92,7 +90,8 @@ units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
                    .value() *
                this->drivetrain.MAXROT;
                */
-    return frc::ApplyDeadband(this->driverController.GetZ(), 0.1) *
+    return this->thetaLimiter.Calculate(
+               frc::ApplyDeadband(this->driverController.GetZ(), 0.1)) *
            this->drivetrain.MAXROT;
   }
 }
@@ -101,8 +100,8 @@ void RobotContainer::ConfigureBindings() {
   // Logitech Controller on XInput
   this->driverController.SetXChannel(1);
   this->driverController.SetYChannel(0);
-  this->driverController.SetZChannel(5);
-  this->driverController.SetTwistChannel(4);
+  this->driverController.SetZChannel(4);
+  this->driverController.SetTwistChannel(5);
   // Configure your trigger bindings here
 
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`

@@ -17,6 +17,6 @@
 namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
-const bool usingFieldOrientedTurn = true;
+const bool usingFieldOrientedTurn = false;
 
 }  // namespace OperatorConstants

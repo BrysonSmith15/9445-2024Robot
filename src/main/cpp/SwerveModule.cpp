@@ -15,8 +15,8 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
     : driveMotor(driveMotorCANID, rev::CANSparkLowLevel::MotorType::kBrushless),
       turnMotor(turnMotorCANID, rev::CANSparkLowLevel::MotorType::kBrushless),
       turnEncoder(turnEncoderCANID) {
-  this->turningPIDController.EnableContinuousInput(-std::numbers::pi * 1_rad,
-                                                   std::numbers::pi * 1_rad);
+  this->turningPIDController.EnableContinuousInput(-std::numbers::pi,
+                                                   std::numbers::pi);
   this->resetDriveDistance();
   // could tune based on
   // https://github.com/REVrobotics/SPARK-MAX-Examples/blob/master/C%2B%2B/Velocity%20PID%20Control/src/main/cpp/Robot.cpp
@@ -35,7 +35,7 @@ void SwerveModule::stop() {
 
 units::angle::radian_t SwerveModule::getTurnAngle() {
   // this is normalized to [-pi, pi]
-  return this->turnEncoder.GetAbsolutePosition().GetValue();
+  return -this->turnEncoder.GetAbsolutePosition().GetValue();
 }
 
 frc::SwerveModulePosition SwerveModule::GetPosition() {
@@ -66,12 +66,6 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   const auto state =
       frc::SwerveModuleState::Optimize(refState, this->getTurnAngle());
   /*
-  double driveOut =
-      this->drivePIDController
-          .SetReference(this->driveLimiter.Calculate(refState.speed.value()),
-                        rev::CANSparkMax::ControlType::kVoltage);
-  */
-  /*
   // uses PID for Drive
   double driveOut = this->drivePIDController.Calculate(
       this->getDriveRate().value(),
@@ -79,26 +73,35 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   */
   // ! use PID for Drive
   double driveOut = this->driveLimiter.Calculate(state.speed.value());
-  double turnOut = this->turningPIDController.Calculate(
-      this->getTurnAngle() / std::numbers::pi,
-      this->turnLimiter.Calculate(state.angle.Radians().value()) * 1_rad);
+  double turnOut = 0.0;
+  if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
+      std::numbers::pi / 64) {
+    turnOut = this->turningPIDController.Calculate(
+        this->getTurnAngle().value(),
+        this->turnLimiter.Calculate(state.angle.Radians().value()));
+  } else {
+    this->turningPIDController.Calculate(
+        this->getTurnAngle().value(),
+        this->turnLimiter.Calculate(state.angle.Radians().value()));
+  }
+  driveOut = driveOut > 1.0 ? 1.0 : driveOut;
+  driveOut = driveOut < -1.0 ? -1.0 : driveOut;
 
-  frc::SmartDashboard::PutNumber("PreTurnOut", turnOut);
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
   turnOut = turnOut < -1.0 ? -1.0 : turnOut;
   frc::SmartDashboard::PutNumber("TurnOut", turnOut);
-  frc::SmartDashboard::PutNumber("DriveOut",
-                                 this->driveMotor.GetAppliedOutput());
+  frc::SmartDashboard::PutNumber("DriveOut", driveOut);
   frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
-  frc::SmartDashboard::PutNumber("turnSetpoint", state.angle.Degrees().value());
+  frc::SmartDashboard::PutNumber("turnSetpoint", state.angle.Radians().value());
   frc::SmartDashboard::PutNumber("driveRate", this->getDriveRate().value());
-  frc::SmartDashboard::PutNumber("turnAngle", this->getTurnAngle().value());
+  frc::SmartDashboard::PutNumber("turnAngle" + this->turnMotor.GetDeviceId(),
+                                 this->getTurnAngle().value());
   frc::SmartDashboard::PutNumber("Encoder Value",
                                  this->driveEncoder.GetPosition());
   frc::SmartDashboard::PutNumber("Encoder Velocity",
                                  this->driveEncoder.GetVelocity());
   this->driveMotor.Set(driveOut);
-  // this->turnMotor.Set(turnOut);
+  this->turnMotor.Set(turnOut);
 }
 
 /*

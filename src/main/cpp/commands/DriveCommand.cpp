@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/time.h>
 
 #include <functional>
 #include <utility>
@@ -23,21 +24,21 @@ DriveCommand::DriveCommand(
 }
 
 void DriveCommand::Execute() {
-  if (this->ticks > 250) {
-    // assumes field oriented
-    auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
-        frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-            this->xTranslation(), this->yTranslation(), this->theta(),
-            this->drivetrain->getGyroAngle()));
+  // assumes field oriented
+  frc::SmartDashboard::PutNumber("XTranslation", this->xTranslation().value());
+  frc::SmartDashboard::PutNumber("YTranslation", this->yTranslation().value());
+  frc::SmartDashboard::PutNumber("Theta", this->theta().value());
+  auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
+      frc::ChassisSpeeds::Discretize(
+          frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+              this->xTranslation(), this->yTranslation(), this->theta(),
+              frc::Rotation2d{this->drivetrain->getGyroAngle()}),
+          units::time::millisecond_t{20.0}));
 
-    this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
-        &states, this->drivetrain->MAXSPEED);
+  this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
+      &states, this->drivetrain->MAXSPEED);
 
-    this->drivetrain->setStates(states);
-  } else {
-    ticks++;
-    frc::SmartDashboard::PutNumber("Ticks", this->ticks);
-  }
+  this->drivetrain->setStates(states);
 }
 
 void DriveCommand::End(bool interrupted) { this->drivetrain->Stop(); }

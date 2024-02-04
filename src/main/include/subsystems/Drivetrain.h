@@ -38,9 +38,10 @@ class Drivetrain : public frc2::SubsystemBase {
   void setStates(wpi::array<frc::SwerveModuleState, 4U> states);
 
   units::angle::radian_t getGyroAngle();
+  void resetYaw();
   units::velocity::meters_per_second_t MAXSPEED = 1_mps;
   units::angular_velocity::radians_per_second_t MAXROT =
-      (std::numbers::pi * 1_rad) / 2_s;
+      (std::numbers::pi * 1_rad) / 1_s;
 
   frc::SwerveDriveKinematics<4> m_kinematics{flLocation, frLocation, blLocation,
                                              brLocation};
@@ -51,16 +52,16 @@ class Drivetrain : public frc2::SubsystemBase {
   const units::length::foot_t forwardDist = 10.5_in;
   const units::length::foot_t horizontalDist = 10.5_in;
 
-  frc::Translation2d flLocation{forwardDist, horizontalDist};
-  frc::Translation2d frLocation{forwardDist, -horizontalDist};
-  frc::Translation2d blLocation{-forwardDist, horizontalDist};
-  frc::Translation2d brLocation{-forwardDist, -horizontalDist};
+  frc::Translation2d flLocation{horizontalDist, forwardDist};
+  frc::Translation2d frLocation{-horizontalDist, forwardDist};
+  frc::Translation2d blLocation{horizontalDist, -forwardDist};
+  frc::Translation2d brLocation{-horizontalDist, -forwardDist};
 
   bool leftInverted = false;
-  // drive, turnMotor, turnEncoder
-  SwerveModule flModule{14, 12, 13, leftInverted, leftInverted};
+  // drive, turnMotor, turnEncoder, driveInverted, turnInverted
+  SwerveModule flModule{14, 12, 13, leftInverted, true};
   SwerveModule frModule{11, 9, 10, !leftInverted, !leftInverted};
-  SwerveModule blModule{17, 15, 16, leftInverted, leftInverted};
+  SwerveModule blModule{17, 15, 16, leftInverted, true};
   SwerveModule brModule{8, 6, 7, !leftInverted, !leftInverted};
 
   frc::SwerveDriveOdometry<4> m_odometry{
