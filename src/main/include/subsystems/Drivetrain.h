@@ -52,12 +52,12 @@ class Drivetrain : public frc2::SubsystemBase {
   const units::length::foot_t forwardDist = 10.5_in;
   const units::length::foot_t horizontalDist = 10.5_in;
 
-  frc::Translation2d flLocation{horizontalDist, forwardDist};
-  frc::Translation2d frLocation{-horizontalDist, forwardDist};
-  frc::Translation2d blLocation{horizontalDist, -forwardDist};
-  frc::Translation2d brLocation{-horizontalDist, -forwardDist};
+  frc::Translation2d flLocation{forwardDist, forwardDist};
+  frc::Translation2d frLocation{forwardDist, -forwardDist};
+  frc::Translation2d blLocation{-forwardDist, forwardDist};
+  frc::Translation2d brLocation{-forwardDist, -forwardDist};
 
-  bool leftInverted = false;
+  const bool leftInverted = false;
   // drive, turnMotor, turnEncoder, driveInverted, turnInverted
   SwerveModule flModule{14, 12, 13, leftInverted, true};
   SwerveModule frModule{11, 9, 10, !leftInverted, !leftInverted};

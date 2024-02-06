@@ -2,6 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include <frc/kinematics/SwerveModuleState.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/time.h>
 
@@ -28,14 +29,23 @@ void DriveCommand::Execute() {
   frc::SmartDashboard::PutNumber("XTranslation", this->xTranslation().value());
   frc::SmartDashboard::PutNumber("YTranslation", this->yTranslation().value());
   frc::SmartDashboard::PutNumber("Theta", this->theta().value());
-  auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
-      frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-          this->xTranslation(), this->yTranslation(), this->theta(),
-          frc::Rotation2d{this->drivetrain->getGyroAngle()}));
-
+  frc::ChassisSpeeds speeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+      this->xTranslation(), this->yTranslation(), this->theta(),
+      frc::Rotation2d{this->drivetrain->getGyroAngle()});
+  auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(speeds);
+  /*
+auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
+frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+ 0_mps, 0_mps, units::radians_per_second_t{std::numbers::pi / 1.0},
+ frc::Rotation2d{this->drivetrain->getGyroAngle()}));
+ */
+  /*
+    auto states =
+        this->drivetrain->m_kinematics.ToSwerveModuleStates(frc::ChassisSpeeds(
+            this->xTranslation(), this->yTranslation(), this->theta()));
+            */
   this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
       &states, this->drivetrain->MAXSPEED);
-
   this->drivetrain->setStates(states);
 }
 

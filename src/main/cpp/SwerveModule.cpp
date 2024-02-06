@@ -63,8 +63,8 @@ frc::SwerveModuleState SwerveModule::GetState() {
 
 void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   // ! turn > pi/2_rad
-  const auto state =
-      frc::SwerveModuleState::Optimize(refState, this->getTurnAngle());
+  const auto state = frc::SwerveModuleState::Optimize(
+      refState, frc::Rotation2d(this->getTurnAngle()));
   /*
   // uses PID for Drive
   double driveOut = this->drivePIDController.Calculate(
@@ -75,7 +75,7 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
   double driveOut = this->driveLimiter.Calculate(state.speed.value());
   double turnOut = 0.0;
   if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
-      std::numbers::pi / 64) {
+      std::numbers::pi / 32) {
     turnOut = this->turningPIDController.Calculate(
         this->getTurnAngle().value(),
         this->turnLimiter.Calculate(state.angle.Radians().value()));

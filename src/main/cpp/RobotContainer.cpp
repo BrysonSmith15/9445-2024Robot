@@ -8,6 +8,8 @@
 #include "Constants.h"
 #include "RobotContainer.h"
 // commands
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
 #include "commands/ElevatorToSetpoint.h"

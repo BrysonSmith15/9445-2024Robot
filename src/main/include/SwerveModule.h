@@ -45,8 +45,8 @@ class SwerveModule {
   static constexpr float gearRatio = 1.0 / 8.14;
 
   static constexpr auto kModuleMaxAngularVelocity =
-      std::numbers::pi * (1_rad / 1_s);  // radians per second
-                                         // 1/2 rot/sec max speed
+      std::numbers::pi * (1_rad / 2_s);  // radians per second
+                                         // 1/4 rot/sec max speed
   static constexpr auto kModuleMaxAngularAcceleration =
       std::numbers::pi * 2_rad / 1_s /
       1_s;  // 2 radians per second^2 = full accel in 1/2 sec (?)
