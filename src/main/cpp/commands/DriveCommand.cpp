@@ -29,13 +29,19 @@ void DriveCommand::Execute() {
   // mps or rad_ps -> percent
   double x = this->xTranslation() / this->drivetrain->MAXSPEED;
   double y = this->yTranslation() / this->drivetrain->MAXSPEED;
-  double t = this->theta() / this->drivetrain->MAXROT;
+  double t = -this->theta() / (this->drivetrain->MAXROT * 4);
+  frc::SmartDashboard::PutNumber("XTranslation", x);
+  frc::SmartDashboard::PutNumber("YTranslation", y);
+  frc::SmartDashboard::PutNumber("Theta", t);
 
   // should do field oriented??
   frc::Translation2d tVector =
       this->rotateByAngle(x, y, this->drivetrain->getGyroAngle());
   x = tVector.X().value();
-  y = tVector.Y().value();
+  y = -tVector.Y().value();
+  frc::SmartDashboard::PutNumber("xTranslation", x);
+  frc::SmartDashboard::PutNumber("yTranslation", y);
+  frc::SmartDashboard::PutNumber("theta", t);
 
   double a =
       x - t * (DrivetrainConstants::length / DrivetrainConstants::diagonal);
@@ -64,14 +70,16 @@ void DriveCommand::Execute() {
   frc::SwerveModuleState blState;
   frc::SwerveModuleState brState;
 
-  frc::SwerveModuleState states[4] = {flState, frState, blState, brState};
+  frc::SwerveModuleState* states[4] = {&flState, &frState, &blState, &brState};
   units::meters_per_second_t speeds[4] = {flSpeed, frSpeed, blSpeed, brSpeed};
   units::radian_t angles[4] = {flAngle, frAngle, blAngle, brAngle};
 
+  frc::SmartDashboard::PutNumber("PreFL", flSpeed.value());
   for (int i = 0; i < 4; i++) {
-    states[i].speed = speeds[i];
-    states[i].angle = angles[i];
+    states[i]->speed = -speeds[i];
+    states[i]->angle = -angles[i];
   }
+  frc::SmartDashboard::PutNumber("FL", flState.speed.value());
 
   this->drivetrain->setStates(flState, frState, blState, brState);
 }
@@ -81,9 +89,9 @@ void DriveCommand::End(bool interrupted) { this->drivetrain->Stop(); }
 frc::Translation2d DriveCommand::rotateByAngle(double x, double y,
                                                units::radian_t deltaTheta) {
   // based on https://www.desmos.com/calculator/mumuwjpmdv
-  units::radian_t theta = std::atan2(x, y) - deltaTheta;
+  units::radian_t theta = units::radian_t{std::atan2(y, x)} - deltaTheta;
   double xP = std::sin(theta.value());
   double yP = std::cos(theta.value());
-  units::meter_t magnitude = units::meter_t{std::sqrt((x * x) + (y * y))};
+  units::meter_t magnitude = units::meter_t{std::sqrt((y * y) + (x * x))};
   return frc::Translation2d{xP * magnitude, yP * magnitude};
 }
