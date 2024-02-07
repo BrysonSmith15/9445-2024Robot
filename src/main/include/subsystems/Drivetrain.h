@@ -36,6 +36,8 @@ class Drivetrain : public frc2::SubsystemBase {
    */
   void Periodic() override;
   void setStates(wpi::array<frc::SwerveModuleState, 4U> states);
+  void setStates(frc::SwerveModuleState fl, frc::SwerveModuleState fr,
+                 frc::SwerveModuleState bl, frc::SwerveModuleState br);
 
   units::angle::radian_t getGyroAngle();
   void resetYaw();

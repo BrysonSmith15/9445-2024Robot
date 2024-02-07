@@ -27,6 +27,15 @@ void Drivetrain::setStates(wpi::array<frc::SwerveModuleState, 4U> states) {
   brModule.setState(br);
 }
 
+void Drivetrain::setStates(frc::SwerveModuleState fl, frc::SwerveModuleState fr,
+                           frc::SwerveModuleState bl,
+                           frc::SwerveModuleState br) {
+  flModule.setState(fl);
+  frModule.setState(fr);
+  blModule.setState(bl);
+  brModule.setState(br);
+}
+
 units::angle::radian_t Drivetrain::getGyroAngle() {
   return units::angle::degree_t{this->gyro.GetYaw()};
   // return 0_rad;
