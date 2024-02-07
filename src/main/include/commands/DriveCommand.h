@@ -46,4 +46,11 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   std::function<units::meters_per_second_t()> xTranslation;
   std::function<units::meters_per_second_t()> yTranslation;
   std::function<units::radians_per_second_t()> theta;
+
+  /*
+   * @param theta The original angle (0 => forwards)
+   * @param deltaTheta The change in angle (>0 => CW)
+   */
+  frc::Translation2d rotateByAngle(double x, double y,
+                                   units::radian_t deltaTheta);
 };

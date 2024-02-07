@@ -9,6 +9,7 @@
 #include <functional>
 #include <utility>
 
+#include "Constants.h"
 #include "commands/DriveCommand.h"
 
 DriveCommand::DriveCommand(
@@ -25,28 +26,72 @@ DriveCommand::DriveCommand(
 }
 
 void DriveCommand::Execute() {
-  // assumes field oriented
-  frc::SmartDashboard::PutNumber("XTranslation", this->xTranslation().value());
-  frc::SmartDashboard::PutNumber("YTranslation", this->yTranslation().value());
-  frc::SmartDashboard::PutNumber("Theta", this->theta().value());
-  frc::ChassisSpeeds speeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-      this->xTranslation(), this->yTranslation(), this->theta(),
-      frc::Rotation2d{this->drivetrain->getGyroAngle()});
-  auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(speeds);
-  /*
-auto states = this->drivetrain->m_kinematics.ToSwerveModuleStates(
-frc::ChassisSpeeds::FromFieldRelativeSpeeds(
- 0_mps, 0_mps, units::radians_per_second_t{std::numbers::pi / 1.0},
- frc::Rotation2d{this->drivetrain->getGyroAngle()}));
- */
-  /*
-    auto states =
-        this->drivetrain->m_kinematics.ToSwerveModuleStates(frc::ChassisSpeeds(
-            this->xTranslation(), this->yTranslation(), this->theta()));
-            */
-  this->drivetrain->m_kinematics.DesaturateWheelSpeeds(
-      &states, this->drivetrain->MAXSPEED);
-  this->drivetrain->setStates(states);
+  // mps or rad_ps -> percent
+  double x = this->xTranslation() / this->drivetrain->MAXSPEED;
+  double y = this->yTranslation() / this->drivetrain->MAXSPEED;
+  double t = -this->theta() / (this->drivetrain->MAXROT * 4);
+  frc::SmartDashboard::PutNumber("XTranslation", x);
+  frc::SmartDashboard::PutNumber("YTranslation", y);
+  frc::SmartDashboard::PutNumber("Theta", t);
+
+  // should do field oriented??
+  frc::Translation2d tVector =
+      this->rotateByAngle(x, y, this->drivetrain->getGyroAngle());
+  x = tVector.X().value();
+  y = -tVector.Y().value();
+  frc::SmartDashboard::PutNumber("xTranslation", x);
+  frc::SmartDashboard::PutNumber("yTranslation", y);
+  frc::SmartDashboard::PutNumber("theta", t);
+
+  double a =
+      x - t * (DrivetrainConstants::length / DrivetrainConstants::diagonal);
+  double b =
+      x + t * (DrivetrainConstants::length / DrivetrainConstants::diagonal);
+  double c =
+      y - t * (DrivetrainConstants::width / DrivetrainConstants::diagonal);
+  double d =
+      y + t * (DrivetrainConstants::width / DrivetrainConstants::diagonal);
+  units::meters_per_second_t flSpeed =
+      std::sqrt((b * b) + (c * c)) * this->drivetrain->MAXSPEED;
+  units::meters_per_second_t frSpeed =
+      std::sqrt((b * b) + (d * d)) * this->drivetrain->MAXSPEED;
+  units::meters_per_second_t blSpeed =
+      std::sqrt((a * a) + (c * c)) * this->drivetrain->MAXSPEED;
+  units::meters_per_second_t brSpeed =
+      std::sqrt((a * a) + (d * d)) * this->drivetrain->MAXSPEED;
+
+  units::radian_t flAngle = units::radian_t{std::atan2(b, c)};
+  units::radian_t frAngle = units::radian_t{std::atan2(b, d)};
+  units::radian_t blAngle = units::radian_t{std::atan2(a, c)};
+  units::radian_t brAngle = units::radian_t{std::atan2(a, d)};
+
+  frc::SwerveModuleState flState;
+  frc::SwerveModuleState frState;
+  frc::SwerveModuleState blState;
+  frc::SwerveModuleState brState;
+
+  frc::SwerveModuleState* states[4] = {&flState, &frState, &blState, &brState};
+  units::meters_per_second_t speeds[4] = {flSpeed, frSpeed, blSpeed, brSpeed};
+  units::radian_t angles[4] = {flAngle, frAngle, blAngle, brAngle};
+
+  frc::SmartDashboard::PutNumber("PreFL", flSpeed.value());
+  for (int i = 0; i < 4; i++) {
+    states[i]->speed = -speeds[i];
+    states[i]->angle = -angles[i];
+  }
+  frc::SmartDashboard::PutNumber("FL", flState.speed.value());
+
+  this->drivetrain->setStates(flState, frState, blState, brState);
 }
 
 void DriveCommand::End(bool interrupted) { this->drivetrain->Stop(); }
+
+frc::Translation2d DriveCommand::rotateByAngle(double x, double y,
+                                               units::radian_t deltaTheta) {
+  // based on https://www.desmos.com/calculator/mumuwjpmdv
+  units::radian_t theta = units::radian_t{std::atan2(y, x)} - deltaTheta;
+  double xP = std::sin(theta.value());
+  double yP = std::cos(theta.value());
+  units::meter_t magnitude = units::meter_t{std::sqrt((y * y) + (x * x))};
+  return frc::Translation2d{xP * magnitude, yP * magnitude};
+}
