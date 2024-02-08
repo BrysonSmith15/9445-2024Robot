@@ -43,7 +43,8 @@ class RobotContainer {
   frc::SlewRateLimiter<units::scalar> xLimiter{1 / 1_s};
   frc::SlewRateLimiter<units::scalar> yLimiter{1 / 1_s};
   */
-  frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s};
+  frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s,
+                                                   -std::numbers::pi / 0.25_s};
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
   // Elevator elevator;

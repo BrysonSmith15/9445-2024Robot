@@ -29,7 +29,7 @@ void DriveCommand::Execute() {
   // mps or rad_ps -> percent
   double x = this->xTranslation() / this->drivetrain->MAXSPEED;
   double y = this->yTranslation() / this->drivetrain->MAXSPEED;
-  double t = -this->theta() / (this->drivetrain->MAXROT * 4);
+  double t = -this->theta() / (this->drivetrain->MAXROT * 32);
   frc::SmartDashboard::PutNumber("XTranslation", x);
   frc::SmartDashboard::PutNumber("YTranslation", y);
   frc::SmartDashboard::PutNumber("Theta", t);

@@ -61,7 +61,7 @@ class SwerveModule {
   frc::PIDController drivePIDController{6e-5, 1e-6, 0.0};
   frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 1_s};
 
-  frc::PIDController turningPIDController{6e-2, 1e-2, 0.0};
+  frc::PIDController turningPIDController{6e-2, 0.0, 0.0};
   frc::SlewRateLimiter<units::scalar> turnLimiter{std::numbers::pi / 1_s};
   // the feedforward controllers have been removed
   // because they are going to be a pain to tune

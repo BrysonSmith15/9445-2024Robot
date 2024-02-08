@@ -43,7 +43,7 @@ class Drivetrain : public frc2::SubsystemBase {
   void resetYaw();
   units::velocity::meters_per_second_t MAXSPEED = 1_mps;
   units::angular_velocity::radians_per_second_t MAXROT =
-      (std::numbers::pi * 1_rad) / 1_s;
+      (std::numbers::pi * 1_rad) / 2_s;
 
   frc::SwerveDriveKinematics<4> m_kinematics{flLocation, frLocation, blLocation,
                                              brLocation};
