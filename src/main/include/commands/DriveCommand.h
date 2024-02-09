@@ -35,17 +35,17 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
    * in rad_per_sec
    */
   DriveCommand(Drivetrain* drivetrain,
-               std::function<units::meters_per_second_t()> xTranslationSupplier,
-               std::function<units::meters_per_second_t()> yTranslationSupplier,
-               std::function<units::radians_per_second_t()> thetaSupplier);
+               std::function<double()> xTranslationSupplier,
+               std::function<double()> yTranslationSupplier,
+               std::function<double()> thetaSupplier);
   void Execute() override;
   void End(bool interrupted) override;
 
  private:
   Drivetrain* drivetrain;
-  std::function<units::meters_per_second_t()> xTranslation;
-  std::function<units::meters_per_second_t()> yTranslation;
-  std::function<units::radians_per_second_t()> theta;
+  std::function<double()> xTranslation;
+  std::function<double()> yTranslation;
+  std::function<double()> theta;
 
   /*
    * @param theta The original angle (0 => forwards)

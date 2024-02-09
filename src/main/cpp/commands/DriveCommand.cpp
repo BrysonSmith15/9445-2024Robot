@@ -12,11 +12,10 @@
 #include "Constants.h"
 #include "commands/DriveCommand.h"
 
-DriveCommand::DriveCommand(
-    Drivetrain* drivetrain,
-    std::function<units::meters_per_second_t()> xTranslationSupplier,
-    std::function<units::meters_per_second_t()> yTranslationSupplier,
-    std::function<units::radians_per_second_t()> thetaSupplier)
+DriveCommand::DriveCommand(Drivetrain* drivetrain,
+                           std::function<double()> xTranslationSupplier,
+                           std::function<double()> yTranslationSupplier,
+                           std::function<double()> thetaSupplier)
     : drivetrain{drivetrain},
       xTranslation{xTranslationSupplier},
       yTranslation{yTranslationSupplier},
@@ -27,9 +26,9 @@ DriveCommand::DriveCommand(
 
 void DriveCommand::Execute() {
   // mps or rad_ps -> percent
-  double x = this->xTranslation() / this->drivetrain->MAXSPEED;
-  double y = this->yTranslation() / this->drivetrain->MAXSPEED;
-  double t = -this->theta() / (this->drivetrain->MAXROT * 32);
+  double x = this->xTranslation();
+  double y = this->yTranslation();
+  double t = -this->theta();
   frc::SmartDashboard::PutNumber("XTranslation", x);
   frc::SmartDashboard::PutNumber("YTranslation", y);
   frc::SmartDashboard::PutNumber("Theta", t);

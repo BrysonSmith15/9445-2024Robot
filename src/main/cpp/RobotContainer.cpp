@@ -23,6 +23,7 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
+  this->thetaController.EnableContinuousInput(-1.0, 1.0);
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
   // }
@@ -31,58 +32,46 @@ RobotContainer::RobotContainer() {
   // this->led.set(0, 299, 216, 80, 36);
 }
 
-units::velocity::meters_per_second_t RobotContainer::getXState() {
+double RobotContainer::getXState() {
   /*
   return this->xLimiter
              .Calculate(frc::ApplyDeadband(this->driverController.GetX(),
   0.1)) .value() * this->drivetrain.MAXSPEED;
          */
-  return frc::ApplyDeadband(this->driverController.GetX(), 0.1) *
-         this->drivetrain.MAXSPEED;
+  return frc::ApplyDeadband(this->driverController.GetX(), 0.1);
 }
-units::velocity::meters_per_second_t RobotContainer::getYState() {
+double RobotContainer::getYState() {
   /*
   return this->yLimiter
              .Calculate(frc::ApplyDeadband(this->driverController.GetY(), 0.1))
              .value() *
          this->drivetrain.MAXSPEED;
          */
-  return -frc::ApplyDeadband(this->driverController.GetY(), 0.1) *
-         this->drivetrain.MAXSPEED;
+  return -frc::ApplyDeadband(this->driverController.GetY(), 0.1);
 }
-units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
+
+double RobotContainer::getThetaState() {
   if (OperatorConstants::usingFieldOrientedTurn) {
-    // find out how much we plan to turn
-    units::angle::radian_t desired{
-        -atan2(frc::ApplyDeadband(this->driverController.GetTwist(), 0.1),
-               frc::ApplyDeadband(this->driverController.GetZ(), 0.1))};
-    units::angle::radian_t actual{this->drivetrain.getGyroAngle()};
-
-    // if the magnitude of the joystick is <= 0.3, return 0.
-    if (sqrt(pow(this->driverController.GetTwist(), 2) +
-             pow(this->driverController.GetZ(), 2)) <= 0.3) {
-      return 0_rad_per_s;
+    // turn to the same angle on the field as the right joystick is pointed at
+    // no reset for thetaController because it does not have an integral term
+    units::angle::radian_t desired = units::radian_t{
+        std::atan2(frc::ApplyDeadband(this->driverController.GetTwist(), 0.1),
+                   frc::ApplyDeadband(this->driverController.GetZ(), 0.1))};
+    frc::SmartDashboard::PutNumber("Desired Rotation",
+                                   units::degree_t{desired}.value());
+    // if magnitude is less than 0.3, keep prev theta
+    if (std::sqrt(
+            this->driverController.GetX() * this->driverController.GetX() +
+            this->driverController.GetY() * this->driverController.GetY()) <
+        0.3) {
+      desired = this->prevTheta;
     }
-
-    // math below this point comes from
-    // https://www.desmos.com/calculator/vkoc1gtneh
-    // -(desired - actual)
-    units::angle::radian_t delta = actual - desired;
-    // if within 7.5_deg of setpoint, just leave it
-    delta = frc::ApplyDeadband(delta.value(), std::numbers::pi / 24) * 1_rad;
-    // Optomize angle
-    if (abs(delta.value()) > std::numbers::pi) {
-      delta = 2_rad * std::numbers::pi - abs(delta.value()) * 1_rad;
-    }
-    delta *= -1;
-    // this returns a field oriented theta based on which direction the driver
-    // points the right joystick
-    /*
-    return -this->thetaLimiter.Calculate(delta / (std::numbers::pi * 1_rad))
-                .value() *
-           this->drivetrain.MAXROT;
-           */
-    return delta / (std::numbers::pi * 1_rad) * this->drivetrain.MAXROT;
+    double out = this->thetaController.Calculate(
+        this->drivetrain.getGyroAngle().value() / std::numbers::pi,
+        desired.value() / std::numbers::pi);
+    out = out > 1.0 ? 1.0 : out;
+    out = out < -1.0 ? -1.0 : out;
+    return out;
   } else {
     // below is just turn based on how much driver says
     /*
@@ -93,8 +82,7 @@ units::angular_velocity::radians_per_second_t RobotContainer::getThetaState() {
                this->drivetrain.MAXROT;
                */
     return this->thetaLimiter.Calculate(
-               frc::ApplyDeadband(this->driverController.GetZ(), 0.1)) *
-           this->drivetrain.MAXROT;
+        frc::ApplyDeadband(this->driverController.GetZ(), 0.1));
   }
 }
 

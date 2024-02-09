@@ -27,9 +27,9 @@ class RobotContainer {
   RobotContainer();
 
   // frc2::CommandPtr GetAutonomousCommand();
-  units::velocity::meters_per_second_t getXState();
-  units::velocity::meters_per_second_t getYState();
-  units::angular_velocity::radians_per_second_t getThetaState();
+  double getXState();
+  double getYState();
+  double getThetaState();
 
  private:
   // Replace with CommandPS4Controller or CommandJoystick if needed
@@ -43,8 +43,9 @@ class RobotContainer {
   frc::SlewRateLimiter<units::scalar> xLimiter{1 / 1_s};
   frc::SlewRateLimiter<units::scalar> yLimiter{1 / 1_s};
   */
-  frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s,
-                                                   -std::numbers::pi / 0.25_s};
+  frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s};
+  frc::PIDController thetaController{5e-5, 0.0, 0.0};
+  units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
   // Elevator elevator;
