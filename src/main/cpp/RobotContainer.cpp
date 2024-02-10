@@ -105,7 +105,7 @@ void RobotContainer::ConfigureBindings() {
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(BindingConstants::shootButton);
   }).OnTrue(Shoot(&this->shooter).ToPtr());
-  // spin the
+  // spin the shooter and then run the intake
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(
         BindingConstants::shootCompositionButton);
@@ -113,7 +113,7 @@ void RobotContainer::ConfigureBindings() {
       .OnTrue(
           Shoot(&this->shooter)
               .ToPtr()
-              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull + 0.5_s)
+              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s)
                              .ToPtr())
               .AndThen(MoveToShooter(&this->intake).ToPtr()));
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
