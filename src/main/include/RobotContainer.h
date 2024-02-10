@@ -9,11 +9,20 @@
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
+#include <frc2/command/button/Trigger.h>
 
 #include "Constants.h"
+// subsystems
 #include "LEDs.h"
 #include "subsystems/Drivetrain.h"
 #include "subsystems/Elevator.h"
+#include "subsystems/Intake.h"
+#include "subsystems/Shooter.h"
+// commands
+#include "commands/DriveCommand.h"
+#include "commands/ElevatorToSetpoint.h"
+#include "commands/MoveToShooter.h"
+#include "commands/Shoot.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -35,6 +44,8 @@ class RobotContainer {
   // Replace with CommandPS4Controller or CommandJoystick if needed
   frc2::CommandJoystick driverController{
       OperatorConstants::kDriverControllerPort};
+  frc2::CommandJoystick secondController{
+      OperatorConstants::kSecondControllerPort};
 
   // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/filters/slew-rate-limiter.html
   // basically rate of change is limited by argument
@@ -48,7 +59,9 @@ class RobotContainer {
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
-  // Elevator elevator;
+  Elevator elevator;
+  Intake intake;
+  Shooter shooter;
   // the LED strip is here
   // LEDs led{0, 0, 299};
   void ConfigureBindings();

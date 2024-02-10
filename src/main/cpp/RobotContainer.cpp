@@ -2,14 +2,16 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/RunCommand.h>
+#include <frc2/command/SequentialCommandGroup.h>
+#include <frc2/command/WaitCommand.h>
 #include <frc2/command/button/Trigger.h>
 
 #include "Constants.h"
 #include "RobotContainer.h"
-// commands
-#include <frc/smartdashboard/SmartDashboard.h>
 
+// commands
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
 #include "commands/ElevatorToSetpoint.h"
@@ -24,6 +26,7 @@ RobotContainer::RobotContainer() {
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
   this->thetaController.EnableContinuousInput(-1.0, 1.0);
+
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
   // }
@@ -92,8 +95,27 @@ void RobotContainer::ConfigureBindings() {
   this->driverController.SetYChannel(0);
   this->driverController.SetZChannel(4);
   this->driverController.SetTwistChannel(5);
-  // Configure your trigger bindings here
 
+  // Move the note to the shooter
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(
+        BindingConstants::moveToShooterButton);
+  }).OnTrue(MoveToShooter(&this->intake).ToPtr());
+  // Make the shooter run
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(BindingConstants::shootButton);
+  }).OnTrue(Shoot(&this->shooter).ToPtr());
+  // spin the
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(
+        BindingConstants::shootCompositionButton);
+  })
+      .OnTrue(
+          Shoot(&this->shooter)
+              .ToPtr()
+              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull + 0.5_s)
+                             .ToPtr())
+              .AndThen(MoveToShooter(&this->intake).ToPtr()));
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   /*
   frc2::Trigger([this] {

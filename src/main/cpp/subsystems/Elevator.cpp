@@ -15,7 +15,11 @@ bool Elevator::topPressed() { return this->topLimit.Get(); }
 bool Elevator::botPressed() { return this->botLimit.Get(); }
 
 void Elevator::setMotors(double powerPercent) {
-  this->motorL.Set(powerPercent);
+  // do not over reach the limit switches
+  if (!((this->botPressed() && powerPercent < 0) ||
+        (this->topPressed() && powerPercent > 0))) {
+    this->motorL.Set(powerPercent);
+  }
 }
 
 double Elevator::calcPID(double setpoint) {
@@ -24,11 +28,10 @@ double Elevator::calcPID(double setpoint) {
 }
 
 void Elevator::Periodic() {
-  // Implementation of subsystem periodic method goes here.
   if (this->botPressed()) {
-    this->encoder.SetPosition(0);
+    this->encoder.SetPosition(ElevatorConstants::bottomTicks);
   } else if (this->topPressed()) {
     // TODO: fix the actual encoder value for the top
-    this->encoder.SetPosition(setpointOptions::climb);
+    this->encoder.SetPosition(ElevatorConstants::climbTicks);
   }
 }

@@ -13,6 +13,8 @@
 // rev
 #include <rev/CANSparkMax.h>
 
+#include "Constants.h"
+
 class Elevator : public frc2::SubsystemBase {
  public:
   Elevator();
@@ -21,18 +23,13 @@ class Elevator : public frc2::SubsystemBase {
    */
   void Periodic() override;
 
-  frc::PIDController elevationController{97.0, 150.0, 0.0};
+  frc::PIDController elevationController{6e-5, 0.0, 0.0};
   double calcPID(double setpoint);
   bool topPressed();
   bool botPressed();
 
   void setMotors(double powerPercent);
   void resetEncoder(bool top);
-
-  // they are ticks from the bottom limit switch
-  // TODO: Set these values to actual encoder readings based on the required
-  // angle
-  enum setpointOptions { bottom, intake, amp, spearker, climb };
 
  private:
   // the motorL will be the master and R will be the follower motor

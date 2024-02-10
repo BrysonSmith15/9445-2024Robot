@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include <frc/Timer.h>
 #include <frc2/command/Command.h>
 #include <frc2/command/CommandHelper.h>
 
-#include "subsystems/Elevator.h"
+#include "subsystems/Intake.h"
 
 /**
  * An example command that uses an example subsystem.
@@ -16,23 +17,20 @@
  * directly; this is crucially important, or else the decorator functions in
  * Command will *not* work!
  */
-class ElevatorToSetpoint
-    : public frc2::CommandHelper<frc2::Command, ElevatorToSetpoint> {
+class MoveToShooter : public frc2::CommandHelper<frc2::Command, MoveToShooter> {
  public:
   /**
-   * Creates a new ExampleCommand.
+   * Creates a new MoveToShooter.
    *
-   * @param elevator The subsystem used by this command.
+   * @param subsystem The subsystem used by this command.
    */
-  explicit ElevatorToSetpoint(Elevator* elevator,
-                              ElevatorConstants::setpointOptions setpoint);
-
-  void Execute() override;
+  explicit MoveToShooter(Intake* intake);
+  void Initialize() override;
+  // void Execute() override;
   bool IsFinished() override;
   void End(bool interrupted) override;
 
  private:
-  Elevator* m_elevator;
-  bool goingUp = false;
-  ElevatorConstants::setpointOptions m_setpoint;
+  Intake* intake;
+  frc::Timer timer;
 };

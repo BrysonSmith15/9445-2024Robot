@@ -20,9 +20,18 @@
 namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
+inline constexpr int kSecondControllerPort = 1;
 const bool usingFieldOrientedTurn = true;
 
 }  // namespace OperatorConstants
+
+namespace BindingConstants {
+
+const int shootCompositionButton = 1;
+const int shootButton = 2;
+const int moveToShooterButton = 3;
+
+}  // namespace BindingConstants
 
 namespace DrivetrainConstants {
 
@@ -32,3 +41,15 @@ const units::meter_t diagonal = units::inch_t{std::sqrt(
     (length.value() * length.value()) + (width.value() * width.value()))};
 
 }  // namespace DrivetrainConstants
+
+namespace ElevatorConstants {
+
+enum setpointOptions { bottom, intake, amp, speaker, climb };
+// TODO: Figure these out
+const int bottomTicks = 0;
+const int intakeTicks = 0;
+const int ampTicks = 0;
+const int speakerTicks = 0;
+const int climbTicks = 0;
+
+}  // namespace ElevatorConstants

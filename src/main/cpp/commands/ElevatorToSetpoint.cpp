@@ -4,8 +4,8 @@
 
 #include "commands/ElevatorToSetpoint.h"
 
-ElevatorToSetpoint::ElevatorToSetpoint(Elevator* elevator,
-                                       Elevator::setpointOptions setpoint)
+ElevatorToSetpoint::ElevatorToSetpoint(
+    Elevator* elevator, ElevatorConstants::setpointOptions setpoint)
     : m_elevator{elevator}, m_setpoint{setpoint} {
   // Register that this command requires the subsystem.
   AddRequirements(m_elevator);
