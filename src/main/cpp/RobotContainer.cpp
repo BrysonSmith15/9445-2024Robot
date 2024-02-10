@@ -59,8 +59,8 @@ double RobotContainer::getThetaState() {
     // turn to the same angle on the field as the right joystick is pointed at
     // no reset for thetaController because it does not have an integral term
     units::angle::radian_t desired = units::radian_t{
-        std::atan2(frc::ApplyDeadband(this->driverController.GetTwist(), 0.1),
-                   frc::ApplyDeadband(this->driverController.GetZ(), 0.1))};
+        std::atan2(frc::ApplyDeadband(this->driverController.GetZ(), 0.1),
+                   frc::ApplyDeadband(this->driverController.GetTwist(), 0.1))};
     frc::SmartDashboard::PutNumber("Desired Rotation",
                                    units::degree_t{desired}.value());
     // if magnitude is less than 0.3, keep prev theta
@@ -73,6 +73,7 @@ double RobotContainer::getThetaState() {
     double out = this->thetaController.Calculate(
         this->drivetrain.getGyroAngle().value() / std::numbers::pi,
         desired.value() / std::numbers::pi);
+    frc::SmartDashboard::PutNumber("Out", out);
     out = out > 1.0 ? 1.0 : out;
     out = out < -1.0 ? -1.0 : out;
     return out;
@@ -98,6 +99,7 @@ void RobotContainer::ConfigureBindings() {
   this->driverController.SetTwistChannel(5);
 
   // Move the note to the shooter
+  /*
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(
         BindingConstants::moveToShooterButton);
@@ -117,6 +119,7 @@ void RobotContainer::ConfigureBindings() {
               .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s)
                              .ToPtr())
               .AndThen(MoveToShooter(&this->intake).ToPtr()));
+              */
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   /*
   frc2::Trigger([this] {
@@ -127,7 +130,7 @@ void RobotContainer::ConfigureBindings() {
   // pressed, cancelling on release.
   // m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
 }
-
+/*
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   // Currently only center
   // TODO: Reset gyro based on where apriltags are seen to make this work for
@@ -141,3 +144,4 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
       .AndThen(DriveDistance(&this->drivetrain, 6_ft + units::inch_t{4 + 1 / 8})
                    .ToPtr());
 }
+*/
