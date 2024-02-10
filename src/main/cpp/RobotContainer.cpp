@@ -14,6 +14,7 @@
 // commands
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
+#include "commands/DriveDistance.h"
 #include "commands/ElevatorToSetpoint.h"
 
 RobotContainer::RobotContainer() {
@@ -126,9 +127,17 @@ void RobotContainer::ConfigureBindings() {
   // pressed, cancelling on release.
   // m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
 }
-/*
+
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  // An example command will be run in autonomous
-  return;
+  // Currently only center
+  // TODO: Reset gyro based on where apriltags are seen to make this work for
+  // all states
+  return ElevatorToSetpoint(&this->elevator, ElevatorConstants::speaker)
+      .ToPtr()
+      .AndThen(Shoot(&this->shooter).ToPtr())
+      .AlongWith(
+          frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s).ToPtr())
+      .AndThen(MoveToShooter(&this->intake).ToPtr())
+      .AndThen(DriveDistance(&this->drivetrain, 6_ft + units::inch_t{4 + 1 / 8})
+                   .ToPtr());
 }
-*/

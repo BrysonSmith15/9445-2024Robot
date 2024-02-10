@@ -35,7 +35,7 @@ class RobotContainer {
  public:
   RobotContainer();
 
-  // frc2::CommandPtr GetAutonomousCommand();
+  frc2::CommandPtr GetAutonomousCommand();
   double getXState();
   double getYState();
   double getThetaState();

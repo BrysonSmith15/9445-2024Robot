@@ -41,6 +41,19 @@ units::angle::radian_t Drivetrain::getGyroAngle() {
   // return 0_rad;
 }
 
+void Drivetrain::resetDistance() {
+  // do not really need to do all four since only one is read, but it is okay
+  this->flModule.resetDriveDistance();
+  this->frModule.resetDriveDistance();
+  this->blModule.resetDriveDistance();
+  this->brModule.resetDriveDistance();
+}
+
+units::foot_t Drivetrain::getDistance() {
+  // technically maybe bad, but could be worse
+  return this->flModule.getDriveDistance();
+}
+
 void Drivetrain::Periodic() {
   m_odometry.Update(this->getGyroAngle(),
                     {flModule.GetPosition(), frModule.GetPosition(),

@@ -89,17 +89,18 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
 
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
   turnOut = turnOut < -1.0 ? -1.0 : turnOut;
-  frc::SmartDashboard::PutNumber("TurnOut", turnOut);
-  frc::SmartDashboard::PutNumber("DriveOut", driveOut);
-  frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
-  frc::SmartDashboard::PutNumber("turnSetpoint", state.angle.Radians().value());
-  frc::SmartDashboard::PutNumber("driveRate", this->getDriveRate().value());
-  frc::SmartDashboard::PutNumber("turnAngle" + this->turnMotor.GetDeviceId(),
-                                 this->getTurnAngle().value());
-  frc::SmartDashboard::PutNumber("Encoder Value",
-                                 this->driveEncoder.GetPosition());
-  frc::SmartDashboard::PutNumber("Encoder Velocity",
-                                 this->driveEncoder.GetVelocity());
+  /*  frc::SmartDashboard::PutNumber("TurnOut", turnOut);
+    frc::SmartDashboard::PutNumber("DriveOut", driveOut);
+    frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
+    frc::SmartDashboard::PutNumber("turnSetpoint",
+    state.angle.Radians().value()); frc::SmartDashboard::PutNumber("driveRate",
+    this->getDriveRate().value()); frc::SmartDashboard::PutNumber("turnAngle" +
+    this->turnMotor.GetDeviceId(), this->getTurnAngle().value());
+    frc::SmartDashboard::PutNumber("Encoder Value",
+                                   this->driveEncoder.GetPosition());
+    frc::SmartDashboard::PutNumber("Encoder Velocity",
+                                   this->driveEncoder.GetVelocity());
+  */
   this->driveMotor.Set(driveOut);
   this->turnMotor.Set(turnOut);
 }

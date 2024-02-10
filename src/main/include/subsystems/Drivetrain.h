@@ -41,6 +41,8 @@ class Drivetrain : public frc2::SubsystemBase {
 
   units::angle::radian_t getGyroAngle();
   void resetYaw();
+  void resetDistance();
+  units::foot_t getDistance();
   units::velocity::meters_per_second_t MAXSPEED = 1_mps;
   units::angular_velocity::radians_per_second_t MAXROT =
       (std::numbers::pi * 1_rad) / 2_s;
