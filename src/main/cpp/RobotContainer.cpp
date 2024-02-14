@@ -2,22 +2,23 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-#include "RobotContainer.h"
-
+#include <frc/DriverStation.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/SequentialCommandGroup.h>
 #include <frc2/command/WaitCommand.h>
 #include <frc2/command/button/Trigger.h>
-#include <frc/DriverStation.h>
 
 #include "Constants.h"
+#include "RobotContainer.h"
 
 // commands
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
 #include "commands/ElevatorToSetpoint.h"
+// nt
+#include <networktables/DoubleTopic.h>
 
 RobotContainer::RobotContainer() {
   // Initialize all of your commands and subsystems here
@@ -31,11 +32,18 @@ RobotContainer::RobotContainer() {
   this->thetaController.EnableContinuousInput(-180, 180);
   this->thetaController.SetTolerance(30);
 
+  auto ntInst = nt::NetworkTableInstance::GetDefault();
+  auto table = ntInst.GetTable("visionTable");
+  nt::DoublePublisher sourceIDPublisher;
   if (auto alliance = frc::DriverStation::GetAlliance()) {
     if (alliance.value() = frc::DriverStation::Alliance::kRed) {
-      VisionConstants::sourceCenterID = 4;
+      this->sourceCenterId = 4;
+      sourceIDPublisher = table->GetDoubleTopic("sourceCenterID").Publish();
     }
   }
+  sourceIDPublisher.Set(this->sourceCenterId);
+  std::thread visionThread(VisionThread);
+  visionThread.detach();
 
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
@@ -53,59 +61,76 @@ double RobotContainer::getYState() {
 }
 
 double RobotContainer::getThetaState() {
-  if (OperatorConstants::usingFieldOrientedTurn) {
-    // turn to the same angle on the field as the right joystick is pointed at
-    // no reset for thetaController because it does not have an integral term
-    units::angle::radian_t desired = units::radian_t{std::atan2(
-        frc::ApplyDeadband(-this->driverController.GetZ(), 0.1),
-        frc::ApplyDeadband(-this->driverController.GetTwist(), 0.1))};
-    frc::SmartDashboard::PutNumber("Desired Rotation",
-                                   units::degree_t{desired}.value());
-    // if magnitude is less than 0.3, keep prev theta
-    if (std::sqrt(
-            (this->driverController.GetZ() * this->driverController.GetZ()) +
-            (this->driverController.GetTwist() *
-             this->driverController.GetTwist())) < 0.3) {
-      desired = this->prevTheta;
-      frc::SmartDashboard::PutBoolean("InDeadband", true);
+  if (this->driverController.GetRawAxis(BindingConstants::trackSpeakerAxis) <
+      0.3) {
+    if (OperatorConstants::usingFieldOrientedTurn) {
+      // turn to the same angle on the field as the right joystick is pointed at
+      // no reset for thetaController because it does not have an integral term
+      units::angle::radian_t desired = units::radian_t{std::atan2(
+          frc::ApplyDeadband(-this->driverController.GetZ(), 0.1),
+          frc::ApplyDeadband(-this->driverController.GetTwist(), 0.1))};
+      frc::SmartDashboard::PutNumber("Desired Rotation",
+                                     units::degree_t{desired}.value());
+      // if magnitude is less than 0.3, keep prev theta
+      if (std::sqrt(
+              (this->driverController.GetZ() * this->driverController.GetZ()) +
+              (this->driverController.GetTwist() *
+               this->driverController.GetTwist())) < 0.3) {
+        desired = this->prevTheta;
+        frc::SmartDashboard::PutBoolean("InDeadband", true);
+      } else {
+        this->prevTheta = desired;
+        frc::SmartDashboard::PutBoolean("InDeadband", false);
+      }
+      double out;
+      frc::SmartDashboard::PutNumber("error",
+                                     this->thetaController.GetPositionError());
+      frc::SmartDashboard::PutNumber("setpoint",
+                                     this->thetaController.GetSetpoint());
+      frc::SmartDashboard::PutNumber(
+          "Angle_deg",
+          units::degree_t{this->drivetrain.getGyroAngle()}.value());
+      if (!this->thetaController.AtSetpoint()) {
+        out = this->thetaController.Calculate(
+            units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+            units::degree_t{desired}.value());
+        frc::SmartDashboard::PutBoolean("PIDDeadband", false);
+      } else {
+        out = 0.0;
+        this->thetaController.Calculate(
+            units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+            units::degree_t{desired}.value());
+        frc::SmartDashboard::PutBoolean("PIDDeadband", true);
+      }
+      frc::SmartDashboard::PutNumber("Out", out);
+      out = out > 1.0 ? 1.0 : out;
+      out = out < -1.0 ? -1.0 : out;
+      return out;
     } else {
-      this->prevTheta = desired;
-      frc::SmartDashboard::PutBoolean("InDeadband", false);
+      // below is just turn based on how much driver says
+      /*
+          return this->thetaLimiter
+                     .Calculate(
+                         frc::ApplyDeadband(this->driverController.GetZ(), 0.1))
+                     .value() *
+                 this->drivetrain.MAXROT;
+                 */
+      return this->thetaLimiter.Calculate(
+          frc::ApplyDeadband(this->driverController.GetZ(), 0.1));
     }
-    double out;
-    frc::SmartDashboard::PutNumber("error",
-                                   this->thetaController.GetPositionError());
-    frc::SmartDashboard::PutNumber("setpoint",
-                                   this->thetaController.GetSetpoint());
-    frc::SmartDashboard::PutNumber(
-        "Angle_deg", units::degree_t{this->drivetrain.getGyroAngle()}.value());
-    if (!this->thetaController.AtSetpoint()) {
-      out = this->thetaController.Calculate(
-          units::degree_t{this->drivetrain.getGyroAngle()}.value(),
-          units::degree_t{desired}.value());
-      frc::SmartDashboard::PutBoolean("PIDDeadband", false);
-    } else {
-      out = 0.0;
-      this->thetaController.Calculate(
-          units::degree_t{this->drivetrain.getGyroAngle()}.value(),
-          units::degree_t{desired}.value());
-      frc::SmartDashboard::PutBoolean("PIDDeadband", true);
+  } else {
+    auto ntInst = nt::NetworkTableInstance::GetDefault();
+    auto table = ntInst.GetTable("visionTable");
+    nt::DoublePublisher xPublisher =
+        table->GetDoubleTopic("sourceCenterX").Publish();
+    int x = xPublisher.GetTopic().GetEntry(0).Get();
+    double out = 0.0;
+    if (x != 0) {
+      out = this->trackPIDController.Calculate(x, 0);
     }
-    frc::SmartDashboard::PutNumber("Out", out);
     out = out > 1.0 ? 1.0 : out;
     out = out < -1.0 ? -1.0 : out;
     return out;
-  } else {
-    // below is just turn based on how much driver says
-    /*
-        return this->thetaLimiter
-                   .Calculate(
-                       frc::ApplyDeadband(this->driverController.GetZ(), 0.1))
-                   .value() *
-               this->drivetrain.MAXROT;
-               */
-    return this->thetaLimiter.Calculate(
-        frc::ApplyDeadband(this->driverController.GetZ(), 0.1));
   }
 }
 
@@ -163,3 +188,45 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
                    .ToPtr());
 }
 */
+
+void RobotContainer::VisionThread() {
+  cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture(0);
+  frc::AprilTagDetector detector;
+  cs::CvSource outStream = frc::CameraServer::PutVideo("front", 640, 480);
+  cv::Mat mat;
+  cv::Mat grayMat;
+  std::vector<int> tags;
+  cs::CvSink cvSink = frc::CameraServer::GetVideo("front");
+  auto ntInst = nt::NetworkTableInstance::GetDefault();
+  auto table = ntInst.GetTable("visionTable");
+  nt::DoublePublisher sourceIDPublisher =
+      table->GetDoubleTopic("sourceCenterID").Publish();
+  nt::DoublePublisher xPublisher =
+      table->GetDoubleTopic("sourceCenterX").Publish();
+  nt::DoublePublisher yPublisher =
+      table->GetDoubleTopic("sourceCenterY").Publish();
+  xPublisher.SetDefault(0);
+  yPublisher.SetDefault(0);
+
+  detector.AddFamily(VisionConstants::tagFamily);
+  outCamera.SetResolution(640, 480);
+  while (true) {
+    int sourceCenterId = sourceIDPublisher.GetTopic().GetEntry(4).Get();
+    if (cvSink.GrabFrame(mat) == 0) {
+      outStream.NotifyError(cvSink.GetError());
+      continue;
+    }
+    cv::cvtColor(mat, grayMat, cv::COLOR_BGR2GRAY);
+    cv::Size size = grayMat.size();
+    frc::AprilTagDetector::Results detections =
+        detector.Detect(size.width, size.height, grayMat.data);
+    tags.clear();
+    for (const frc::AprilTagDetection* detection : detections) {
+      auto position = detection->GetCenter();
+      if (detection->GetId() == sourceCenterId) {
+        xPublisher.Set(position.x);
+        yPublisher.Set(position.y);
+      }
+    }
+  }
+}

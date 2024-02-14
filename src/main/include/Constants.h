@@ -5,7 +5,9 @@
 #pragma once
 
 #include <math.h>
+#include <units/angle.h>
 #include <units/length.h>
+
 #include <string>
 
 /**
@@ -31,6 +33,7 @@ namespace BindingConstants {
 const int shootCompositionButton = 1;
 const int shootButton = 2;
 const int moveToShooterButton = 3;
+const int trackSpeakerAxis = 4;
 
 }  // namespace BindingConstants
 
@@ -56,6 +59,12 @@ const int climbTicks = 0;
 }  // namespace ElevatorConstants
 
 namespace VisionConstants {
-   const std::string tagFamily = "tag36h11";
-   int sourceCenterID = 7; // 4 if red
-} // namespace VisionConstants
+const std::string tagFamily = "tag36h11";
+const int rSourceCenterID = 4;
+const int bSourceCenterID = 7;
+const units::degree_t frontCameraHFOV = 100_deg;
+const units::degree_t frontCameraVFOV =
+    std::atan2(units::radian_t{frontCameraHFOV}.value(),
+               units::radian_t{138_deg}.value()) *
+    1_rad;
+}  // namespace VisionConstants

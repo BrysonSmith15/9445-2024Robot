@@ -4,14 +4,15 @@
 
 #pragma once
 
+#include <cameraserver/CameraServer.h>
 #include <frc/PneumaticHub.h>
 #include <frc/Solenoid.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/button/Trigger.h>
+
 #include <thread>
-#include <cameraserver/CameraServer.h>
 
 #include "Constants.h"
 // subsystems
@@ -25,6 +26,18 @@
 #include "commands/ElevatorToSetpoint.h"
 #include "commands/MoveToShooter.h"
 #include "commands/Shoot.h"
+// vision
+#include <cameraserver/CameraServer.h>
+#include <frc/apriltag/AprilTagDetection.h>
+#include <frc/apriltag/AprilTagDetector.h>
+#include <networktables/DoubleTopic.h>
+#include <networktables/NetworkTable.h>
+#include <networktables/NetworkTableInstance.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/core/types.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <thread>
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -43,6 +56,7 @@ class RobotContainer {
   double getThetaState();
 
  private:
+  int sourceCenterId = 7;
   // Replace with CommandPS4Controller or CommandJoystick if needed
   frc2::CommandJoystick driverController{
       OperatorConstants::kDriverControllerPort};
@@ -58,6 +72,7 @@ class RobotContainer {
   */
   frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s};
   frc::PIDController thetaController{3e-5, 0.0, 0.0};
+  frc::PIDController trackPIDController{3e-5, 0.0, 0.0};
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
@@ -69,6 +84,5 @@ class RobotContainer {
   // LEDs led{0, 0, 299};
   void ConfigureBindings();
 
-  cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture();
   static void VisionThread();
 };
