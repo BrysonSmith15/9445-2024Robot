@@ -46,6 +46,10 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   std::function<double()> xTranslation;
   std::function<double()> yTranslation;
   std::function<double()> theta;
+  double prevX = 0;
+  double prevY = 0;
+  double prevT = 0;
+
 
   /*
    * @param theta The original angle (0 => forwards)

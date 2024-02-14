@@ -6,6 +6,7 @@
 
 #include <math.h>
 #include <units/length.h>
+#include <string>
 
 /**
  * The Constants header provides a convenient place for teams to hold robot-wide
@@ -53,3 +54,8 @@ const int speakerTicks = 0;
 const int climbTicks = 0;
 
 }  // namespace ElevatorConstants
+
+namespace VisionConstants {
+   const std::string tagFamily = "tag36h11";
+   int sourceCenterID = 7; // 4 if red
+} // namespace VisionConstants

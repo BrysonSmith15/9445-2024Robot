@@ -29,6 +29,8 @@ void DriveCommand::Execute() {
   double x = this->xTranslation();
   double y = this->yTranslation();
   double t = this->theta();
+
+  
   frc::SmartDashboard::PutNumber("XTranslation", x);
   frc::SmartDashboard::PutNumber("YTranslation", y);
   frc::SmartDashboard::PutNumber("Theta", t);

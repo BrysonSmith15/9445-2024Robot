@@ -10,6 +10,8 @@
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
 #include <frc2/command/button/Trigger.h>
+#include <thread>
+#include <cameraserver/CameraServer.h>
 
 #include "Constants.h"
 // subsystems
@@ -55,7 +57,7 @@ class RobotContainer {
   frc::SlewRateLimiter<units::scalar> yLimiter{1 / 1_s};
   */
   frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s};
-  frc::PIDController thetaController{5e-5, 0.0, 0.0};
+  frc::PIDController thetaController{3e-5, 0.0, 0.0};
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
@@ -66,4 +68,7 @@ class RobotContainer {
   // the LED strip is here
   // LEDs led{0, 0, 299};
   void ConfigureBindings();
+
+  cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture();
+  static void VisionThread();
 };

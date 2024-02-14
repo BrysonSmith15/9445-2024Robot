@@ -63,6 +63,7 @@ class SwerveModule {
 
   frc::PIDController turningPIDController{6e-2, 0.0, 0.0};
   frc::SlewRateLimiter<units::scalar> turnLimiter{std::numbers::pi / 1_s};
+  units::radian_t prevTheta = 0_rad;
   // the feedforward controllers have been removed
   // because they are going to be a pain to tune
   // and potentially not worth it at all.

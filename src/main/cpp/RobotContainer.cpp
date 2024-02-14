@@ -2,14 +2,16 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include "RobotContainer.h"
+
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/SequentialCommandGroup.h>
 #include <frc2/command/WaitCommand.h>
 #include <frc2/command/button/Trigger.h>
+#include <frc/DriverStation.h>
 
 #include "Constants.h"
-#include "RobotContainer.h"
 
 // commands
 #include "commands/Autos.h"
@@ -26,7 +28,14 @@ RobotContainer::RobotContainer() {
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
-  this->thetaController.EnableContinuousInput(-1.0, 1.0);
+  this->thetaController.EnableContinuousInput(-180, 180);
+  this->thetaController.SetTolerance(30);
+
+  if (auto alliance = frc::DriverStation::GetAlliance()) {
+    if (alliance.value() = frc::DriverStation::Alliance::kRed) {
+      VisionConstants::sourceCenterID = 4;
+    }
+  }
 
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
@@ -37,20 +46,9 @@ RobotContainer::RobotContainer() {
 }
 
 double RobotContainer::getXState() {
-  /*
-  return this->xLimiter
-             .Calculate(frc::ApplyDeadband(this->driverController.GetX(),
-  0.1)) .value() * this->drivetrain.MAXSPEED;
-         */
   return frc::ApplyDeadband(this->driverController.GetX(), 0.1);
 }
 double RobotContainer::getYState() {
-  /*
-  return this->yLimiter
-             .Calculate(frc::ApplyDeadband(this->driverController.GetY(), 0.1))
-             .value() *
-         this->drivetrain.MAXSPEED;
-         */
   return -frc::ApplyDeadband(this->driverController.GetY(), 0.1);
 }
 
@@ -58,21 +56,41 @@ double RobotContainer::getThetaState() {
   if (OperatorConstants::usingFieldOrientedTurn) {
     // turn to the same angle on the field as the right joystick is pointed at
     // no reset for thetaController because it does not have an integral term
-    units::angle::radian_t desired = units::radian_t{
-        std::atan2(frc::ApplyDeadband(this->driverController.GetZ(), 0.1),
-                   frc::ApplyDeadband(this->driverController.GetTwist(), 0.1))};
+    units::angle::radian_t desired = units::radian_t{std::atan2(
+        frc::ApplyDeadband(-this->driverController.GetZ(), 0.1),
+        frc::ApplyDeadband(-this->driverController.GetTwist(), 0.1))};
     frc::SmartDashboard::PutNumber("Desired Rotation",
                                    units::degree_t{desired}.value());
     // if magnitude is less than 0.3, keep prev theta
     if (std::sqrt(
-            this->driverController.GetX() * this->driverController.GetX() +
-            this->driverController.GetY() * this->driverController.GetY()) <
-        0.3) {
+            (this->driverController.GetZ() * this->driverController.GetZ()) +
+            (this->driverController.GetTwist() *
+             this->driverController.GetTwist())) < 0.3) {
       desired = this->prevTheta;
+      frc::SmartDashboard::PutBoolean("InDeadband", true);
+    } else {
+      this->prevTheta = desired;
+      frc::SmartDashboard::PutBoolean("InDeadband", false);
     }
-    double out = this->thetaController.Calculate(
-        this->drivetrain.getGyroAngle().value() / std::numbers::pi,
-        desired.value() / std::numbers::pi);
+    double out;
+    frc::SmartDashboard::PutNumber("error",
+                                   this->thetaController.GetPositionError());
+    frc::SmartDashboard::PutNumber("setpoint",
+                                   this->thetaController.GetSetpoint());
+    frc::SmartDashboard::PutNumber(
+        "Angle_deg", units::degree_t{this->drivetrain.getGyroAngle()}.value());
+    if (!this->thetaController.AtSetpoint()) {
+      out = this->thetaController.Calculate(
+          units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+          units::degree_t{desired}.value());
+      frc::SmartDashboard::PutBoolean("PIDDeadband", false);
+    } else {
+      out = 0.0;
+      this->thetaController.Calculate(
+          units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+          units::degree_t{desired}.value());
+      frc::SmartDashboard::PutBoolean("PIDDeadband", true);
+    }
     frc::SmartDashboard::PutNumber("Out", out);
     out = out > 1.0 ? 1.0 : out;
     out = out < -1.0 ? -1.0 : out;
