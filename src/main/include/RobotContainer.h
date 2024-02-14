@@ -55,7 +55,7 @@ class RobotContainer {
   frc::SlewRateLimiter<units::scalar> yLimiter{1 / 1_s};
   */
   frc::SlewRateLimiter<units::scalar> thetaLimiter{std::numbers::pi / 4_s};
-  frc::PIDController thetaController{5e-5, 0.0, 0.0};
+  frc::PIDController thetaController{3e-5, 0.0, 0.0};
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;

@@ -2,12 +2,12 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include "SwerveModule.h"
+
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/CANSparkLowLevel.h>
 #include <units/time.h>
-
-#include "SwerveModule.h"
 
 SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
                            int turnEncoderCANID, bool driveInverted,
@@ -61,7 +61,7 @@ frc::SwerveModuleState SwerveModule::GetState() {
   return {this->getDriveRate(), frc::Rotation2d{this->getTurnAngle()}};
 }
 
-void SwerveModule::setState(const frc::SwerveModuleState& refState) {
+void SwerveModule::setState(const frc::SwerveModuleState &refState) {
   // ! turn > pi/2_rad
   const auto state = frc::SwerveModuleState::Optimize(
       refState, frc::Rotation2d(this->getTurnAngle()));
@@ -72,7 +72,13 @@ void SwerveModule::setState(const frc::SwerveModuleState& refState) {
       this->driveLimiter.Calculate(state.speed.value()));
   */
   // ! use PID for Drive
-  double driveOut = this->driveLimiter.Calculate(state.speed.value());
+  double driveOut;
+  if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
+      std::numbers::pi / 4) {
+    driveOut = 0;
+  } else {
+    driveOut = this->driveLimiter.Calculate(state.speed.value());
+  }
   double turnOut = 0.0;
   if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
       std::numbers::pi / 32) {
