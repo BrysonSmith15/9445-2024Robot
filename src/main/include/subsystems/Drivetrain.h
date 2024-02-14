@@ -7,6 +7,7 @@
 #include <functional>
 
 // frc
+#include <frc/I2C.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <frc2/command/CommandPtr.h>
@@ -51,7 +52,7 @@ class Drivetrain : public frc2::SubsystemBase {
                                              brLocation};
 
  private:
-  AHRS gyro{frc::SerialPort::kUSB1};
+  AHRS gyro{frc::I2C::Port::kOnboard};
 
   const units::length::foot_t forwardDist = 10.5_in;
   const units::length::foot_t horizontalDist = 10.5_in;
