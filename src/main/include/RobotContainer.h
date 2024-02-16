@@ -50,7 +50,7 @@ class RobotContainer {
  public:
   RobotContainer();
 
-  // frc2::CommandPtr GetAutonomousCommand();
+  frc2::CommandPtr GetAutonomousCommand();
   double getXState();
   double getYState();
   double getThetaState();
@@ -76,10 +76,11 @@ class RobotContainer {
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
   Drivetrain drivetrain;
-  /*  Elevator elevator;
-    Intake intake;
-    Shooter shooter;
-    */
+  /*
+  Elevator elevator;
+  Intake intake;
+  Shooter shooter;
+  */
   // the LED strip is here
   // LEDs led{0, 0, 299};
   void ConfigureBindings();
