@@ -18,6 +18,7 @@
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
 #include "commands/ElevatorToSetpoint.h"
+#include "commands/LEDSet.h"
 // nt
 #include <networktables/DoubleTopic.h>
 
@@ -52,6 +53,7 @@ RobotContainer::RobotContainer() {
   // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
   // this->led.set(0, 299, 216, 80, 36);
+  this->led.SetDefaultCommand(LEDSet(&this->led, 216, 80, 36));
 }
 
 double RobotContainer::getXState() {

@@ -82,7 +82,7 @@ class RobotContainer {
   Shooter shooter;
   */
   // the LED strip is here
-  // LEDs led{0, 0, 299};
+  LEDs led{0, 299};
   void ConfigureBindings();
 
   static void VisionThread();

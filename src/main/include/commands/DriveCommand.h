@@ -50,7 +50,6 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   double prevY = 0;
   double prevT = 0;
 
-
   /*
    * @param theta The original angle (0 => forwards)
    * @param deltaTheta The change in angle (>0 => CW)
