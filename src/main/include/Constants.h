@@ -62,6 +62,8 @@ namespace VisionConstants {
 const std::string tagFamily = "tag36h11";
 const int rSourceCenterID = 4;
 const int bSourceCenterID = 7;
+const int frontCameraXRes = 640;
+const int frontCameraYRes = 480;
 const units::degree_t frontCameraHFOV = 100_deg;
 const units::degree_t frontCameraVFOV =
     std::atan2(units::radian_t{frontCameraHFOV}.value(),

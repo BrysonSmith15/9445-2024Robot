@@ -1,10 +1,9 @@
 #include <LEDs.h>
 
-LEDs::LEDs(int pwmID, int stripStart, int stripEnd) : led{pwmID} {
-  this->stripStart = stripStart;
-  this->stripEnd = stripEnd;
+LEDs::LEDs(int pwmID, int stripLen) : led{pwmID} {
+  this->stripLen = stripLen;
 
-  this->led.SetLength(stripEnd - stripStart);
+  this->led.SetLength(stripLen);
   this->led.SetData(this->ledBuf);
   this->led.Start();
 }

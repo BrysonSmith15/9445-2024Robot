@@ -41,7 +41,7 @@ class Drivetrain : public frc2::SubsystemBase {
                  frc::SwerveModuleState bl, frc::SwerveModuleState br);
 
   units::angle::radian_t getGyroAngle();
-  void resetYaw();
+  frc2::CommandPtr resetYaw(units::degree_t newOff);
   void resetDistance();
   units::foot_t getDistance();
   units::velocity::meters_per_second_t MAXSPEED = 1_mps;
@@ -50,6 +50,8 @@ class Drivetrain : public frc2::SubsystemBase {
 
   frc::SwerveDriveKinematics<4> m_kinematics{flLocation, frLocation, blLocation,
                                              brLocation};
+  // > 0 -> cw, < 0 -> ccw
+  units::degree_t angleOff = 0.0_deg;
 
  private:
   AHRS gyro{frc::I2C::Port::kOnboard};

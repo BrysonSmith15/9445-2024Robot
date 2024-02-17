@@ -29,7 +29,6 @@ class Elevator : public frc2::SubsystemBase {
   bool botPressed();
 
   void setMotors(double powerPercent);
-  void resetEncoder(bool top);
 
  private:
   // the motorL will be the master and R will be the follower motor

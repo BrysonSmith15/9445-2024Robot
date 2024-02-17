@@ -18,6 +18,7 @@
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
 #include "commands/ElevatorToSetpoint.h"
+#include "commands/LEDSet.h"
 // nt
 #include <networktables/DoubleTopic.h>
 
@@ -52,6 +53,7 @@ RobotContainer::RobotContainer() {
   // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
   // this->led.set(0, 299, 216, 80, 36);
+  this->led.SetDefaultCommand(LEDSet(&this->led, 216, 80, 36));
 }
 
 double RobotContainer::getXState() {
@@ -174,13 +176,19 @@ void RobotContainer::ConfigureBindings() {
   // pressed, cancelling on release.
   // m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
 }
+
 /*
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  // Currently only center
-  // TODO: Reset gyro based on where apriltags are seen to make this work for
-  // all states
-  return ElevatorToSetpoint(&this->elevator, ElevatorConstants::speaker)
-      .ToPtr()
+  auto ntInst = nt::NetworkTableInstance::GetDefault();
+  auto table = ntInst.GetTable("visionTable");
+  nt::DoublePublisher sourceXPublisher =
+      table->GetDoubleTopic("sourceCenterX").Publish();
+  return this->drivetrain
+      .resetYaw(180_deg - ((sourceXPublisher.GetTopic().GetEntry(0.0).Get() /
+                            VisionConstants::frontCameraXRes) *
+                           VisionConstants::frontCameraHFOV))
+      .AndThen(ElevatorToSetpoint(&this->elevator, ElevatorConstants::speaker)
+                   .ToPtr())
       .AndThen(Shoot(&this->shooter).ToPtr())
       .AlongWith(
           frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s).ToPtr())
@@ -193,7 +201,9 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 void RobotContainer::VisionThread() {
   cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture(0);
   frc::AprilTagDetector detector;
-  cs::CvSource outStream = frc::CameraServer::PutVideo("front", 640, 480);
+  cs::CvSource outStream =
+      frc::CameraServer::PutVideo("front", VisionConstants::frontCameraXRes,
+                                  VisionConstants::frontCameraYRes);
   cv::Mat mat;
   cv::Mat grayMat;
   std::vector<int> tags;

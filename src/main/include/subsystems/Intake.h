@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <frc/DigitalInput.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
@@ -24,4 +25,5 @@ class Intake : public frc2::SubsystemBase {
  private:
   rev::CANSparkMax motor{24, rev::CANSparkLowLevel::MotorType::kBrushed};
   frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
+  frc::DigitalInput limit{3};
 };
