@@ -4,6 +4,10 @@
 
 #include "subsystems/Elevator.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
+#include <iostream>
+
 Elevator::Elevator()
     : encoder{this->motorL.GetEncoder(
           rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} {
@@ -23,15 +27,24 @@ void Elevator::setMotors(double powerPercent) {
 }
 
 double Elevator::calcPID(double setpoint) {
-  return this->elevationController.Calculate(this->encoder.GetPosition(),
-                                             setpoint);
+  return this->elevationController.Calculate(this->getTopTicks(), setpoint);
+}
+
+frc2::CommandPtr Elevator::manual(double powerPercent) {
+  return this->RunOnce([this, powerPercent] { this->setMotors(powerPercent); });
+}
+
+int Elevator::getTopTicks() {
+  return (int)(this->encoder.GetPosition() * ElevatorConstants::gearRatio);
 }
 
 void Elevator::Periodic() {
+  frc::SmartDashboard::PutNumber("Elevator Top Ticks", this->getTopTicks());
   if (this->botPressed()) {
     this->encoder.SetPosition(ElevatorConstants::bottomTicks);
   } else if (this->topPressed()) {
     // TODO: fix the actual encoder value for the top
-    this->encoder.SetPosition(ElevatorConstants::climbTicks);
+    // this->encoder.SetPosition(ElevatorConstants::climbTicks);
+    std::cout << "Top Pressed\n";
   }
 }

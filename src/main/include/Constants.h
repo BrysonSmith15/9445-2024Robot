@@ -29,11 +29,22 @@ const bool usingFieldOrientedTurn = true;
 }  // namespace OperatorConstants
 
 namespace BindingConstants {
+const int shootCompositionTrigger = 2;
+const int shootButton = 6;
+const int intakeButton = 1;
+const int moveToShooterAxis = 3;
 
-const int shootCompositionButton = 1;
-const int shootButton = 2;
-const int moveToShooterButton = 3;
-const int trackSpeakerAxis = 4;
+const int elevatorDownAngle = 180;
+const int elevatorUpAngle = 0;
+
+const int elevatorSourceButton = 3;
+const int trackSpeakerButton = 5;
+const int elevatorAmpButton = 2;
+
+const int trackSpeakerAxis = 2;
+
+const int elevatorManualUpButton = 7;
+const int elevatorManualDownButton = 8;
 
 }  // namespace BindingConstants
 
@@ -48,10 +59,11 @@ const units::meter_t diagonal = units::inch_t{std::sqrt(
 
 namespace ElevatorConstants {
 
-enum setpointOptions { bottom, intake, amp, speaker, climb };
+const double gearRatio = 14 / 64;
+enum setpointOptions { bottom, source, amp, speaker, climb };
 // TODO: Figure these out
 const int bottomTicks = 0;
-const int intakeTicks = 0;
+const int sourceTicks = 0;
 const int ampTicks = 0;
 const int speakerTicks = 0;
 const int climbTicks = 0;

@@ -74,14 +74,12 @@ class RobotContainer {
   frc::PIDController thetaController{5e-5, 0.0, 0.0};
   units::radian_t prevTheta = 0_rad;
   // The robot's subsystems are defined here...
-  Drivetrain drivetrain;
-  /*
+  // Drivetrain drivetrain;
   Elevator elevator;
   Intake intake;
   Shooter shooter;
-  */
   // the LED strip is here
-  LEDs led{0, 299};
+  LEDs led{9, 80};
   void ConfigureBindings();
 
   static void VisionThread();

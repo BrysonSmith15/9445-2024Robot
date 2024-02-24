@@ -8,6 +8,7 @@
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
+#include <rev/CANSparkLowLevel.h>
 #include <rev/CANSparkMax.h>
 #include <units/dimensionless.h>
 
@@ -19,11 +20,11 @@ class Intake : public frc2::SubsystemBase {
    * Will be called periodically whenever the CommandScheduler runs.
    */
   void Periodic() override;
-  void run(bool forward);
+  void run(double speed);
   void stop();
 
  private:
-  rev::CANSparkMax motor{24, rev::CANSparkLowLevel::MotorType::kBrushed};
-  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
+  rev::CANSparkMax motor{23, rev::CANSparkLowLevel::MotorType::kBrushless};
+  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s, -1 / 1_s};
   frc::DigitalInput limit{3};
 };

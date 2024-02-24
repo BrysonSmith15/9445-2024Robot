@@ -4,15 +4,21 @@
 
 #include "subsystems/Intake.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 Intake::Intake() {
   // Implementation of subsystem constructor goes here.
 }
 
-void Intake::run(bool forward) {
-  this->motor.Set(this->limiter.Calculate(forward ? 1 : -1));
+void Intake::run(double speed) {
+  this->motor.Set(this->limiter.Calculate(speed));
 }
 
-void Intake::stop() { this->motor.Set(this->limiter.Calculate(0)); }
+void Intake::stop() {
+  double out = this->limiter.Calculate(0);
+  frc::SmartDashboard::PutNumber("out", out);
+  this->motor.Set(out);
+}
 
 void Intake::Periodic() {
   // Implementation of subsystem periodic method goes here.

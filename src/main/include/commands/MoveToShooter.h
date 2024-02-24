@@ -24,7 +24,7 @@ class MoveToShooter : public frc2::CommandHelper<frc2::Command, MoveToShooter> {
    *
    * @param subsystem The subsystem used by this command.
    */
-  explicit MoveToShooter(Intake* intake);
+  explicit MoveToShooter(Intake* intake, double speed);
   void Initialize() override;
   // void Execute() override;
   bool IsFinished() override;
@@ -33,4 +33,5 @@ class MoveToShooter : public frc2::CommandHelper<frc2::Command, MoveToShooter> {
  private:
   Intake* intake;
   frc::Timer timer;
+  double speed = 0.0;
 };

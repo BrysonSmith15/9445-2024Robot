@@ -18,6 +18,7 @@
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
 #include "commands/ElevatorToSetpoint.h"
+#include "commands/LEDChase.h"
 #include "commands/LEDSet.h"
 // nt
 #include <networktables/DoubleTopic.h>
@@ -27,10 +28,12 @@ RobotContainer::RobotContainer() {
 
   // Configure the button bindings
   ConfigureBindings();
+  /*
   this->drivetrain.SetDefaultCommand(DriveCommand(
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
+      */
   this->thetaController.EnableContinuousInput(-180, 180);
   this->thetaController.SetTolerance(30);
 
@@ -52,8 +55,10 @@ RobotContainer::RobotContainer() {
   // }
   // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
-  // this->led.set(0, 299, 216, 80, 36);
-  this->led.SetDefaultCommand(LEDSet(&this->led, 216, 80, 36));
+  // this->led.SetDefaultCommand(LEDSet(&this->led, 255, 50, 0));
+  this->led.SetDefaultCommand(
+      LEDChase(&this->led, 255, 50, 0, 255, 255, 255, 40));
+  this->intake.SetDefaultCommand(MoveToShooter(&this->intake, 0.0).ToPtr());
 }
 
 double RobotContainer::getXState() {
@@ -90,21 +95,23 @@ double RobotContainer::getThetaState() {
                                      this->thetaController.GetPositionError());
       frc::SmartDashboard::PutNumber("setpoint",
                                      this->thetaController.GetSetpoint());
-      frc::SmartDashboard::PutNumber(
-          "Angle_deg",
-          units::degree_t{this->drivetrain.getGyroAngle()}.value());
-      if (!this->thetaController.AtSetpoint()) {
-        out = this->thetaController.Calculate(
-            units::degree_t{this->drivetrain.getGyroAngle()}.value(),
-            units::degree_t{desired}.value());
-        frc::SmartDashboard::PutBoolean("PIDDeadband", false);
-      } else {
-        out = 0.0;
-        this->thetaController.Calculate(
-            units::degree_t{this->drivetrain.getGyroAngle()}.value(),
-            units::degree_t{desired}.value());
-        frc::SmartDashboard::PutBoolean("PIDDeadband", true);
-      }
+      /*
+frc::SmartDashboard::PutNumber(
+"Angle_deg",
+units::degree_t{this->drivetrain.getGyroAngle()}.value());
+if (!this->thetaController.AtSetpoint()) {
+out = this->thetaController.Calculate(
+units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+units::degree_t{desired}.value());
+frc::SmartDashboard::PutBoolean("PIDDeadband", false);
+} else {
+out = 0.0;
+this->thetaController.Calculate(
+units::degree_t{this->drivetrain.getGyroAngle()}.value(),
+units::degree_t{desired}.value());
+frc::SmartDashboard::PutBoolean("PIDDeadband", true);
+}
+*/
       frc::SmartDashboard::PutNumber("Out", out);
       out = out > 1.0 ? 1.0 : out;
       out = out < -1.0 ? -1.0 : out;
@@ -122,6 +129,7 @@ double RobotContainer::getThetaState() {
           frc::ApplyDeadband(this->driverController.GetZ(), 0.1));
     }
   } else {
+    /*
     auto ntInst = nt::NetworkTableInstance::GetDefault();
     auto table = ntInst.GetTable("visionTable");
     nt::DoublePublisher xPublisher =
@@ -134,6 +142,8 @@ double RobotContainer::getThetaState() {
     out = out > 1.0 ? 1.0 : out;
     out = out < -1.0 ? -1.0 : out;
     return out;
+    */
+    return 0.0;
   }
 }
 
@@ -143,28 +153,74 @@ void RobotContainer::ConfigureBindings() {
   this->driverController.SetYChannel(0);
   this->driverController.SetZChannel(4);
   this->driverController.SetTwistChannel(5);
-
-  // Move the note to the shooter
-  /*
+  // intake note
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(BindingConstants::intakeButton);
+  }).WhileTrue(MoveToShooter(&this->intake, 0.4).ToPtr());
+  // move note to shooter
+  frc2::Trigger([this] {
+    return this->secondController.GetRawAxis(
+               BindingConstants::moveToShooterAxis) > 0.3;
+  }).WhileTrue(MoveToShooter(&this->intake, 1.0).ToPtr());
+  // manual shooter up
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(
-        BindingConstants::moveToShooterButton);
-  }).OnTrue(MoveToShooter(&this->intake).ToPtr());
+        BindingConstants::elevatorManualUpButton);
+  }).WhileTrue(this->elevator.manual(0.25));
+  // manual shooter down
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(
+        BindingConstants::elevatorManualUpButton);
+  }).WhileTrue(this->elevator.manual(-0.25));
   // Make the shooter run
+  /*
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(BindingConstants::shootButton);
-  }).OnTrue(Shoot(&this->shooter).ToPtr());
+  }).ToggleOnTrue(Shoot(&this->shooter).ToPtr());
+  */
+  /*
+  // move shooter to bottom
+  frc2::Trigger([this] {
+    return this->secondController.GetPOV(0) ==
+           BindingConstants::elevatorDownAngle;
+  })
+      .OnTrue(ElevatorToSetpoint(&this->elevator,
+                                 ElevatorConstants::setpointOptions::bottom)
+                  .ToPtr());
+  // move shooter to amp
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(
+        BindingConstants::elevatorAmpButton);
+  })
+      .OnTrue(ElevatorToSetpoint(&this->elevator,
+                                 ElevatorConstants::setpointOptions::amp)
+                  .ToPtr());
+  // move shooter to source
+  frc2::Trigger([this] {
+    return this->secondController.GetRawButton(
+        BindingConstants::elevatorSourceButton);
+  })
+      .OnTrue(ElevatorToSetpoint(&this->elevator,
+                                 ElevatorConstants::setpointOptions::source)
+                  .ToPtr());
+  // move shooter to top position
+  frc2::Trigger([this] {
+    return this->secondController.GetPOV(0) ==
+           BindingConstants::elevatorUpAngle;
+  })
+      .OnTrue(ElevatorToSetpoint(&this->elevator,
+                                 ElevatorConstants::setpointOptions::climb)
+                  .ToPtr());
   // spin the shooter and then run the intake
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(
-        BindingConstants::shootCompositionButton);
+               BindingConstants::shootCompositionTrigger) >= 0.3;
   })
       .OnTrue(
           Shoot(&this->shooter)
               .ToPtr()
-              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s)
-                             .ToPtr())
-              .AndThen(MoveToShooter(&this->intake).ToPtr()));
+              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull +
+  0.25_s) .ToPtr()) .AndThen(MoveToShooter(&this->intake).ToPtr()));
               */
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   /*

@@ -32,6 +32,8 @@ class LEDChase : public frc2::CommandHelper<frc2::Command, LEDChase> {
   void Execute() override;
   void End(bool interrupted) override;
 
+  virtual bool RunsWhenDisabled() const override;
+
  private:
   LEDs* led;
   int mr;

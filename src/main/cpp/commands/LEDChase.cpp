@@ -6,7 +6,7 @@
 
 LEDChase::LEDChase(LEDs* leds, int mr, int mg, int mb, int cr, int cg, int cb,
                    int width)
-    : led{leds}, mr{mr}, mg{mr}, mb{mb}, cr{cr}, cg{cg}, cb{cb}, width{width} {
+    : led{leds}, mr{mr}, mg{mg}, mb{mb}, cr{cr}, cg{cg}, cb{cb}, width{width} {
   // Register that this command requires the subsystem.
   AddRequirements(this->led);
 }
@@ -19,8 +19,9 @@ void LEDChase::Initialize() {
 void LEDChase::Execute() {
   this->counter++;
   // slow it down a little bit
-  if (this->counter % 5 == 0) {
+  if (this->counter % 1 == 0) {
     this->chasePoint++;
+    this->chasePoint %= this->led->stripLen;
   }
   int chaseEnd = this->chasePoint + this->width;
   if (chaseEnd > this->led->stripLen) {
@@ -44,3 +45,5 @@ void LEDChase::Execute() {
 void LEDChase::End(bool interrupted) {
   this->led->set(0, this->led->stripLen, this->mr, this->mg, this->mb);
 }
+
+bool LEDChase::RunsWhenDisabled() const { return true; }

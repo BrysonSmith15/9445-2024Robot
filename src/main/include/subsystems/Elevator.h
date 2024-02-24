@@ -29,11 +29,13 @@ class Elevator : public frc2::SubsystemBase {
   bool botPressed();
 
   void setMotors(double powerPercent);
+  frc2::CommandPtr manual(double powerPercent);
+  int getTopTicks();
 
  private:
   // the motorL will be the master and R will be the follower motor
   // both of these are CIMs
-  rev::CANSparkMax motorL{18, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorL{24, rev::CANSparkLowLevel::MotorType::kBrushed};
   rev::CANSparkMax motorR{19, rev::CANSparkLowLevel::MotorType::kBrushed};
 
   frc::DigitalInput topLimit{0};

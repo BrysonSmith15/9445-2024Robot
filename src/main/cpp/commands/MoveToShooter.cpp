@@ -4,20 +4,17 @@
 
 #include "commands/MoveToShooter.h"
 
-MoveToShooter::MoveToShooter(Intake* intake) : intake{intake} {
+MoveToShooter::MoveToShooter(Intake* intake, double speed)
+    : intake{intake}, speed{speed} {
   // Register that this command requires the subsystem.
   AddRequirements(this->intake);
 }
 
 void MoveToShooter::Initialize() {
   this->timer.Restart();
-  this->intake->run(true);
+  this->intake->run(speed);
 }
 
-// TODO: Test if an execute function is needed or if a CANSparkMAX.Set() call is
-// set and forget
-// void MoveToShooter::Execute() { this->intake->run(true); }
-
-bool MoveToShooter::IsFinished() { return this->timer.HasElapsed(2_s); }
+bool MoveToShooter::IsFinished() { return false; }
 
 void MoveToShooter::End(bool interrupeted) { this->intake->stop(); }

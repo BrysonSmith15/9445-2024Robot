@@ -13,3 +13,5 @@ void LEDs::set(int start, int end, int r, int g, int b) {
     this->ledBuf[i].SetRGB(r, g, b);
   }
 }
+
+void LEDs::Periodic() { this->led.SetData(this->ledBuf); }

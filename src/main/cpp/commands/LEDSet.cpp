@@ -11,8 +11,7 @@ LEDSet::LEDSet(LEDs* strip, int r, int g, int b)
 }
 
 void LEDSet::Execute() {
-  this->leds->set(this->leds->stripStart, this->leds->stripEnd, this->r,
-                  this->g, this->b);
+  this->leds->set(0, this->leds->stripLen, this->r, this->g, this->b);
 }
 
 bool LEDSet::IsFinished() { return true; }

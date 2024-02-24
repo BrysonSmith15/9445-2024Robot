@@ -27,7 +27,7 @@ class Shooter : public frc2::SubsystemBase {
   units::second_t secondsToFull = 1_s;
 
  private:
-  rev::CANSparkMax motorL1{20, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorL1{21, rev::CANSparkLowLevel::MotorType::kBrushed};
   rev::CANSparkMax motorR1{22, rev::CANSparkLowLevel::MotorType::kBrushed};
   // rev::CANSparkMax motorL2{21, rev::CANSparkLowLevel::MotorType::kBrushed};
   // rev::CANSparkMax motorR2{23, rev::CANSparkLowLevel::MotorType::kBrushed};
