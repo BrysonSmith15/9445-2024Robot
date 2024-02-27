@@ -76,8 +76,8 @@ class RobotContainer {
   // The robot's subsystems are defined here...
   // Drivetrain drivetrain;
   Elevator elevator;
-  Intake intake;
-  Shooter shooter;
+  //   Intake intake;
+  //   Shooter shooter;
   // the LED strip is here
   LEDs led{9, 80};
   void ConfigureBindings();

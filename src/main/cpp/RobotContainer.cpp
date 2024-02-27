@@ -9,6 +9,7 @@
 #include <frc2/command/RunCommand.h>
 #include <frc2/command/SequentialCommandGroup.h>
 #include <frc2/command/WaitCommand.h>
+#include <frc2/command/button/JoystickButton.h>
 #include <frc2/command/button/Trigger.h>
 
 #include "Constants.h"
@@ -17,6 +18,7 @@
 #include "commands/Autos.h"
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
+#include "commands/ElevatorManual.h"
 #include "commands/ElevatorToSetpoint.h"
 #include "commands/LEDChase.h"
 #include "commands/LEDSet.h"
@@ -47,8 +49,8 @@ RobotContainer::RobotContainer() {
     }
   }
   sourceIDPublisher.Set(this->sourceCenterId);
-  std::thread visionThread(VisionThread);
-  visionThread.detach();
+  // std::thread visionThread(VisionThread);
+  // visionThread.detach();
 
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
@@ -58,7 +60,9 @@ RobotContainer::RobotContainer() {
   // this->led.SetDefaultCommand(LEDSet(&this->led, 255, 50, 0));
   this->led.SetDefaultCommand(
       LEDChase(&this->led, 255, 50, 0, 255, 255, 255, 40));
-  this->intake.SetDefaultCommand(MoveToShooter(&this->intake, 0.0).ToPtr());
+  this->elevator.SetDefaultCommand(
+      ElevatorManual(&this->elevator, 0.0).ToPtr());
+  // this->intake.SetDefaultCommand(MoveToShooter(&this->intake, 0.0).ToPtr());
 }
 
 double RobotContainer::getXState() {
@@ -153,6 +157,7 @@ void RobotContainer::ConfigureBindings() {
   this->driverController.SetYChannel(0);
   this->driverController.SetZChannel(4);
   this->driverController.SetTwistChannel(5);
+  /*
   // intake note
   frc2::Trigger([this] {
     return this->secondController.GetRawButton(BindingConstants::intakeButton);
@@ -162,16 +167,17 @@ void RobotContainer::ConfigureBindings() {
     return this->secondController.GetRawAxis(
                BindingConstants::moveToShooterAxis) > 0.3;
   }).WhileTrue(MoveToShooter(&this->intake, 1.0).ToPtr());
+  */
   // manual shooter up
-  frc2::Trigger([this] {
-    return this->secondController.GetRawButton(
-        BindingConstants::elevatorManualUpButton);
-  }).WhileTrue(this->elevator.manual(0.25));
+  frc2::JoystickButton(&this->secondController,
+                       BindingConstants::elevatorManualUpButton)
+      .OnTrue(
+          ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
   // manual shooter down
-  frc2::Trigger([this] {
-    return this->secondController.GetRawButton(
-        BindingConstants::elevatorManualUpButton);
-  }).WhileTrue(this->elevator.manual(-0.25));
+  frc2::JoystickButton(&this->secondController,
+                       BindingConstants::elevatorManualDownButton)
+      .OnTrue(
+          ElevatorManual(&this->elevator, ElevatorConstants::speed).ToPtr());
   // Make the shooter run
   /*
   frc2::Trigger([this] {
