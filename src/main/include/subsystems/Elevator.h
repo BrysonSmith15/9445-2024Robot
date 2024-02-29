@@ -6,12 +6,15 @@
 
 #include <frc/DigitalInput.h>
 #include <frc/controller/PIDController.h>
+#include <frc/filter/SlewRateLimiter.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/SubsystemBase.h>
 
 // rev
 #include <rev/CANSparkMax.h>
+// units
+#include <units/dimensionless.h>
 
 #include "Constants.h"
 
@@ -35,12 +38,14 @@ class Elevator : public frc2::SubsystemBase {
  private:
   // the motorL will be the master and R will be the follower motor
   // both of these are CIMs
-  rev::CANSparkMax motorL{24, rev::CANSparkLowLevel::MotorType::kBrushed};
-  rev::CANSparkMax motorR{19, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorL1{26, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorL2{27, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorR1{24, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorR2{25, rev::CANSparkLowLevel::MotorType::kBrushed};
 
   frc::DigitalInput topLimit{0};
   frc::DigitalInput botLimit{1};
 
   // rev::SparkRelativeEncoder encoder;
-  int counter = 0;
+  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
 };

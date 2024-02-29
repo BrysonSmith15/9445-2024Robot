@@ -60,7 +60,6 @@ const units::meter_t diagonal = units::inch_t{std::sqrt(
 namespace ElevatorConstants {
 
 const double speed = 0.50;
-const double diff = 8 / 3;
 const double gearRatio = 14 / 64;
 enum setpointOptions { bottom, source, amp, speaker, climb };
 // TODO: Figure these out

@@ -171,12 +171,12 @@ void RobotContainer::ConfigureBindings() {
   // manual shooter up
   frc2::JoystickButton(&this->secondController,
                        BindingConstants::elevatorManualUpButton)
-      .OnTrue(
+      .WhileTrue(
           ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
   // manual shooter down
   frc2::JoystickButton(&this->secondController,
                        BindingConstants::elevatorManualDownButton)
-      .OnTrue(
+      .WhileTrue(
           ElevatorManual(&this->elevator, ElevatorConstants::speed).ToPtr());
   // Make the shooter run
   /*

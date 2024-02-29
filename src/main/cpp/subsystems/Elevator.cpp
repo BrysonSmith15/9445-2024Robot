@@ -12,35 +12,42 @@ Elevator::Elevator()
 /*: encoder{this->motorL.GetEncoder(
       rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} */
 {
-  // this->motorR.Follow(this->motorL, true);
   this->elevationController.SetTolerance(250);
-  this->motorR.SetInverted(true);
 }
 
 bool Elevator::topPressed() { return this->topLimit.Get(); }
 bool Elevator::botPressed() { return this->botLimit.Get(); }
 
 void Elevator::setMotors(double powerPercent) {
+  powerPercent = -powerPercent;
   // do not over reach the limit switches
   if (powerPercent > 0) {
     if (this->topPressed()) {
       frc::SmartDashboard::PutNumber("out", 0);
-      this->motorL.Set(0);
-      this->motorR.Set(0);
+      this->motorL1.Set(0);
+      this->motorR1.Set(0);
+      this->motorL2.Set(0);
+      this->motorR2.Set(0);
     } else {
       frc::SmartDashboard::PutNumber("out", powerPercent);
-      this->motorL.Set(powerPercent / ElevatorConstants::diff);
-      this->motorR.Set(powerPercent);
+      this->motorL1.Set(powerPercent);
+      this->motorL2.Set(powerPercent);
+      this->motorR1.Set(powerPercent);
+      this->motorR2.Set(powerPercent);
     }
   } else {
     if (this->botPressed()) {
       frc::SmartDashboard::PutNumber("out", 0);
-      this->motorL.Set(0);
-      this->motorR.Set(0);
+      this->motorL1.Set(0);
+      this->motorR1.Set(0);
+      this->motorL2.Set(0);
+      this->motorR2.Set(0);
     } else {
       frc::SmartDashboard::PutNumber("out", powerPercent);
-      this->motorL.Set(powerPercent / ElevatorConstants::diff);
-      this->motorR.Set(powerPercent);
+      this->motorL1.Set(powerPercent);
+      this->motorL2.Set(powerPercent);
+      this->motorR1.Set(powerPercent);
+      this->motorR2.Set(powerPercent);
     }
   }
 }
@@ -50,9 +57,7 @@ double Elevator::calcPID(double setpoint) {
 }
 
 frc2::CommandPtr Elevator::manual(double powerPercent) {
-  this->counter++;
   frc::SmartDashboard::PutNumber("elevator power", powerPercent);
-  frc::SmartDashboard::PutNumber("Counter", this->counter);
   return this->RunOnce([this, powerPercent] { this->setMotors(powerPercent); });
 }
 
