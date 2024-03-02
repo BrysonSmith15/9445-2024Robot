@@ -34,5 +34,5 @@ class ElevatorToSetpoint
  private:
   Elevator* m_elevator;
   bool goingUp = false;
-  ElevatorConstants::setpointOptions m_setpoint;
+  double m_setpoint;
 };

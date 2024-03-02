@@ -5,6 +5,7 @@
 #pragma once
 
 #include <frc/DigitalInput.h>
+#include <frc/Encoder.h>
 #include <frc/controller/PIDController.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc/motorcontrol/MotorControllerGroup.h>
@@ -32,8 +33,8 @@ class Elevator : public frc2::SubsystemBase {
   bool botPressed();
 
   void setMotors(double powerPercent);
-  frc2::CommandPtr manual(double powerPercent);
   int getTopTicks();
+  units::degree_t getTopDegs();
 
  private:
   // the motorL will be the master and R will be the follower motor
@@ -46,6 +47,7 @@ class Elevator : public frc2::SubsystemBase {
   frc::DigitalInput topLimit{0};
   frc::DigitalInput botLimit{1};
 
-  // rev::SparkRelativeEncoder encoder;
+  rev::SparkRelativeEncoder encoder;
+
   frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
 };

@@ -6,9 +6,26 @@
 
 ElevatorToSetpoint::ElevatorToSetpoint(
     Elevator* elevator, ElevatorConstants::setpointOptions setpoint)
-    : m_elevator{elevator}, m_setpoint{setpoint} {
+    : m_elevator{elevator} {
   // Register that this command requires the subsystem.
   AddRequirements(m_elevator);
+  switch (setpoint) {
+    case ElevatorConstants::bottom:
+      this->m_setpoint = ElevatorConstants::bottomTicks.value();
+      break;
+    case ElevatorConstants::amp:
+      this->m_setpoint = ElevatorConstants::ampTicks.value();
+      break;
+    case ElevatorConstants::source:
+      this->m_setpoint = ElevatorConstants::sourceTicks.value();
+      break;
+    case ElevatorConstants::speaker:
+      this->m_setpoint = ElevatorConstants::speakerTicks.value();
+      break;
+    case ElevatorConstants::climb:
+      this->m_setpoint = ElevatorConstants::climbTicks.value();
+      break;
+  }
 }
 
 void ElevatorToSetpoint::Execute() {

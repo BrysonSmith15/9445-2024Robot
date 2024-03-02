@@ -81,42 +81,28 @@ double RobotContainer::getThetaState() {
       units::angle::radian_t desired = units::radian_t{std::atan2(
           frc::ApplyDeadband(-this->driverController.GetZ(), 0.1),
           frc::ApplyDeadband(-this->driverController.GetTwist(), 0.1))};
-      frc::SmartDashboard::PutNumber("Desired Rotation",
-                                     units::degree_t{desired}.value());
       // if magnitude is less than 0.3, keep prev theta
       if (std::sqrt(
               (this->driverController.GetZ() * this->driverController.GetZ()) +
               (this->driverController.GetTwist() *
                this->driverController.GetTwist())) < 0.3) {
         desired = this->prevTheta;
-        frc::SmartDashboard::PutBoolean("InDeadband", true);
       } else {
         this->prevTheta = desired;
-        frc::SmartDashboard::PutBoolean("InDeadband", false);
       }
       double out;
-      frc::SmartDashboard::PutNumber("error",
-                                     this->thetaController.GetPositionError());
-      frc::SmartDashboard::PutNumber("setpoint",
-                                     this->thetaController.GetSetpoint());
       /*
-frc::SmartDashboard::PutNumber(
-"Angle_deg",
-units::degree_t{this->drivetrain.getGyroAngle()}.value());
 if (!this->thetaController.AtSetpoint()) {
 out = this->thetaController.Calculate(
 units::degree_t{this->drivetrain.getGyroAngle()}.value(),
 units::degree_t{desired}.value());
-frc::SmartDashboard::PutBoolean("PIDDeadband", false);
 } else {
 out = 0.0;
 this->thetaController.Calculate(
 units::degree_t{this->drivetrain.getGyroAngle()}.value(),
 units::degree_t{desired}.value());
-frc::SmartDashboard::PutBoolean("PIDDeadband", true);
 }
 */
-      frc::SmartDashboard::PutNumber("Out", out);
       out = out > 1.0 ? 1.0 : out;
       out = out < -1.0 ? -1.0 : out;
       return out;
@@ -172,12 +158,12 @@ void RobotContainer::ConfigureBindings() {
   frc2::JoystickButton(&this->secondController,
                        BindingConstants::elevatorManualUpButton)
       .WhileTrue(
-          ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
+          ElevatorManual(&this->elevator, ElevatorConstants::speed).ToPtr());
   // manual shooter down
   frc2::JoystickButton(&this->secondController,
                        BindingConstants::elevatorManualDownButton)
       .WhileTrue(
-          ElevatorManual(&this->elevator, ElevatorConstants::speed).ToPtr());
+          ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
   // Make the shooter run
   /*
   frc2::Trigger([this] {

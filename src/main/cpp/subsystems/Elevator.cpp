@@ -9,27 +9,35 @@
 #include <iostream>
 
 Elevator::Elevator()
-/*: encoder{this->motorL.GetEncoder(
-      rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} */
-{
-  this->elevationController.SetTolerance(250);
+    : encoder{this->motorL1.GetEncoder(
+          rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} {
+  this->elevationController.SetTolerance(2.5);
+  // TODO: check
+  this->encoder.SetInverted(true);
 }
 
 bool Elevator::topPressed() { return this->topLimit.Get(); }
 bool Elevator::botPressed() { return this->botLimit.Get(); }
 
 void Elevator::setMotors(double powerPercent) {
-  powerPercent = -powerPercent;
   // do not over reach the limit switches
+  if ((powerPercent > 0 && this->topPressed()) ||
+      (powerPercent < 0 && this->botPressed())) {
+    powerPercent = 0;
+  }
+  this->motorL1.Set(powerPercent);
+  this->motorL2.Set(powerPercent);
+  this->motorR1.Set(powerPercent);
+  this->motorR2.Set(powerPercent);
+  // TODO: Replace if above breaks elevator
+  /*
   if (powerPercent > 0) {
     if (this->topPressed()) {
-      frc::SmartDashboard::PutNumber("out", 0);
       this->motorL1.Set(0);
       this->motorR1.Set(0);
       this->motorL2.Set(0);
       this->motorR2.Set(0);
     } else {
-      frc::SmartDashboard::PutNumber("out", powerPercent);
       this->motorL1.Set(powerPercent);
       this->motorL2.Set(powerPercent);
       this->motorR1.Set(powerPercent);
@@ -37,46 +45,40 @@ void Elevator::setMotors(double powerPercent) {
     }
   } else {
     if (this->botPressed()) {
-      frc::SmartDashboard::PutNumber("out", 0);
       this->motorL1.Set(0);
       this->motorR1.Set(0);
       this->motorL2.Set(0);
       this->motorR2.Set(0);
     } else {
-      frc::SmartDashboard::PutNumber("out", powerPercent);
       this->motorL1.Set(powerPercent);
       this->motorL2.Set(powerPercent);
       this->motorR1.Set(powerPercent);
       this->motorR2.Set(powerPercent);
     }
   }
+  */
 }
 
 double Elevator::calcPID(double setpoint) {
-  return this->elevationController.Calculate(this->getTopTicks(), setpoint);
-}
-
-frc2::CommandPtr Elevator::manual(double powerPercent) {
-  frc::SmartDashboard::PutNumber("elevator power", powerPercent);
-  return this->RunOnce([this, powerPercent] { this->setMotors(powerPercent); });
+  return this->elevationController.Calculate(this->getTopDegs().value(),
+                                             setpoint);
 }
 
 int Elevator::getTopTicks() {
-  // return (int)(this->encoder.GetPosition() * ElevatorConstants::gearRatio);
-  return 0;
+  return (int)(this->encoder.GetPosition() * ElevatorConstants::gearRatio);
+  // return 0;
+}
+
+units::degree_t Elevator::getTopDegs() {
+  // https://www.desmos.com/calculator/4vcdc3fi7o
+  return (90_deg * ElevatorConstants::gearRatio * this->encoder.GetPosition()) /
+         this->encoder.GetCountsPerRevolution();
 }
 
 void Elevator::Periodic() {
-  frc::SmartDashboard::PutNumber("Elevator Top Ticks", this->getTopTicks());
-  // frc::SmartDashboard::PutBoolean("Going", false);
   if (this->botPressed()) {
-    // this->encoder.SetPosition(ElevatorConstants::bottomTicks);
+    this->encoder.SetPosition(0);
   } else if (this->topPressed()) {
-    // TODO: fix the actual encoder value for the top
-    // this->encoder.SetPosition(ElevatorConstants::climbTicks);
-    std::cout << "Top Pressed\n";
-    frc::SmartDashboard::PutBoolean("top", true);
-  } else {
-    frc::SmartDashboard::PutBoolean("top", false);
+    this->encoder.SetPosition(8192 / ElevatorConstants::gearRatio);
   }
 }
