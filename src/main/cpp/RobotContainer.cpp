@@ -30,6 +30,8 @@ RobotContainer::RobotContainer() {
 
   // Configure the button bindings
   ConfigureBindings();
+  // not really a thread; just publishes the video
+  VisionThread();
   /*
   this->drivetrain.SetDefaultCommand(DriveCommand(
       &drivetrain, [this] { return this->getXState(); },
@@ -38,19 +40,6 @@ RobotContainer::RobotContainer() {
       */
   this->thetaController.EnableContinuousInput(-180, 180);
   this->thetaController.SetTolerance(30);
-
-  auto ntInst = nt::NetworkTableInstance::GetDefault();
-  auto table = ntInst.GetTable("visionTable");
-  nt::DoublePublisher sourceIDPublisher;
-  if (auto alliance = frc::DriverStation::GetAlliance()) {
-    if (alliance.value() = frc::DriverStation::Alliance::kRed) {
-      this->sourceCenterId = 4;
-      sourceIDPublisher = table->GetDoubleTopic("sourceCenterID").Publish();
-    }
-  }
-  sourceIDPublisher.Set(this->sourceCenterId);
-  // std::thread visionThread(VisionThread);
-  // visionThread.detach();
 
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
@@ -252,40 +241,4 @@ void RobotContainer::VisionThread() {
   cs::CvSource outStream =
       frc::CameraServer::PutVideo("front", VisionConstants::frontCameraXRes,
                                   VisionConstants::frontCameraYRes);
-  cv::Mat mat;
-  cv::Mat grayMat;
-  std::vector<int> tags;
-  cs::CvSink cvSink = frc::CameraServer::GetVideo("front");
-  auto ntInst = nt::NetworkTableInstance::GetDefault();
-  auto table = ntInst.GetTable("visionTable");
-  nt::DoublePublisher sourceIDPublisher =
-      table->GetDoubleTopic("sourceCenterID").Publish();
-  nt::DoublePublisher xPublisher =
-      table->GetDoubleTopic("sourceCenterX").Publish();
-  nt::DoublePublisher yPublisher =
-      table->GetDoubleTopic("sourceCenterY").Publish();
-  xPublisher.SetDefault(0);
-  yPublisher.SetDefault(0);
-
-  detector.AddFamily(VisionConstants::tagFamily);
-  outCamera.SetResolution(640, 480);
-  while (true) {
-    int sourceCenterId = sourceIDPublisher.GetTopic().GetEntry(4).Get();
-    if (cvSink.GrabFrame(mat) == 0) {
-      outStream.NotifyError(cvSink.GetError());
-      continue;
-    }
-    cv::cvtColor(mat, grayMat, cv::COLOR_BGR2GRAY);
-    cv::Size size = grayMat.size();
-    frc::AprilTagDetector::Results detections =
-        detector.Detect(size.width, size.height, grayMat.data);
-    tags.clear();
-    for (const frc::AprilTagDetection* detection : detections) {
-      auto position = detection->GetCenter();
-      if (detection->GetId() == sourceCenterId) {
-        xPublisher.Set(position.x);
-        yPublisher.Set(position.y);
-      }
-    }
-  }
 }
