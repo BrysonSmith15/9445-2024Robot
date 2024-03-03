@@ -12,8 +12,6 @@ Elevator::Elevator()
     : encoder{this->motorL1.GetEncoder(
           rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} {
   this->elevationController.SetTolerance(2.5);
-  // TODO: check
-  this->encoder.SetInverted(true);
 }
 
 bool Elevator::topPressed() { return this->topLimit.Get(); }
@@ -71,8 +69,7 @@ int Elevator::getTopTicks() {
 
 units::degree_t Elevator::getTopDegs() {
   // https://www.desmos.com/calculator/4vcdc3fi7o
-  return (90_deg * ElevatorConstants::gearRatio * this->encoder.GetPosition()) /
-         this->encoder.GetCountsPerRevolution();
+  return (90_deg * ElevatorConstants::gearRatio * this->encoder.GetPosition());
 }
 
 void Elevator::Periodic() {
