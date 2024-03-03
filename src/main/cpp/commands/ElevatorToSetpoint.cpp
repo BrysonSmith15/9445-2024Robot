@@ -4,6 +4,8 @@
 
 #include "commands/ElevatorToSetpoint.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 ElevatorToSetpoint::ElevatorToSetpoint(
     Elevator* elevator, ElevatorConstants::setpointOptions setpoint)
     : m_elevator{elevator} {

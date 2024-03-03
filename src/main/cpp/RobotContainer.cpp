@@ -186,23 +186,23 @@ void RobotContainer::ConfigureBindings() {
                   .ToPtr());
   // move shooter to top position
   frc2::Trigger([this] {
-    return this->secondController.GetPOV(0) ==
+    return this->driverController.GetPOV(0) ==
            BindingConstants::elevatorUpAngle;
   })
       .OnTrue(ElevatorToSetpoint(&this->elevator,
                                  ElevatorConstants::setpointOptions::climb)
                   .ToPtr());
-  // spin the shooter and then run the intake
-  frc2::Trigger([this] {
-    return this->secondController.GetRawButton(
-               BindingConstants::shootCompositionTrigger) >= 0.3;
-  })
-      .OnTrue(
-          Shoot(&this->shooter)
-              .ToPtr()
-              .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull +
-  0.25_s) .ToPtr()) .AndThen(MoveToShooter(&this->intake).ToPtr()));
-              */
+// spin the shooter and then run the intake
+frc2::Trigger([this] {
+return this->secondController.GetRawButton(
+BindingConstants::shootCompositionTrigger) >= 0.3;
+})
+.OnTrue(
+Shoot(&this->shooter)
+.ToPtr()
+.AlongWith(frc2::WaitCommand(this->shooter.secondsToFull +
+0.25_s) .ToPtr()) .AndThen(MoveToShooter(&this->intake).ToPtr()));
+*/
   // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
   /*
   frc2::Trigger([this] {

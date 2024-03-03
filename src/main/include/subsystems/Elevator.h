@@ -33,7 +33,6 @@ class Elevator : public frc2::SubsystemBase {
   bool botPressed();
 
   void setMotors(double powerPercent);
-  int getTopTicks();
   units::degree_t getTopDegs();
 
  private:
@@ -47,7 +46,8 @@ class Elevator : public frc2::SubsystemBase {
   frc::DigitalInput topLimit{0};
   frc::DigitalInput botLimit{1};
 
-  rev::SparkRelativeEncoder encoder;
+  frc::Encoder encoder{8, 9};
+  bool lastTouchedBottom = false;
 
   frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
 };
