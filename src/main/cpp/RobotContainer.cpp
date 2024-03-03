@@ -19,7 +19,9 @@
 #include "commands/DriveCommand.h"
 #include "commands/DriveDistance.h"
 #include "commands/ElevatorManual.h"
+#include "commands/ElevatorToBottom.h"
 #include "commands/ElevatorToSetpoint.h"
+#include "commands/ElevatorToTop.h"
 #include "commands/LEDChase.h"
 #include "commands/LEDSet.h"
 // nt
@@ -153,6 +155,14 @@ void RobotContainer::ConfigureBindings() {
                        BindingConstants::elevatorManualDownButton)
       .WhileTrue(
           ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
+  // elevator to bottom
+  frc2::Trigger([this] {
+    return this->secondController.GetPOV(BindingConstants::elevatorDownAngle);
+  }).OnTrue(ElevatorToBottom(&this->elevator).ToPtr());
+  // elevator to top
+  frc2::Trigger([this] {
+    return this->secondController.GetPOV(BindingConstants::elevatorUpAngle);
+  }).OnTrue(ElevatorToTop(&this->elevator).ToPtr());
   // Make the shooter run
   /*
   frc2::Trigger([this] {
