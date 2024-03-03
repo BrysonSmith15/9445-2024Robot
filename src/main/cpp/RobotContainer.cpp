@@ -237,7 +237,6 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
 
 void RobotContainer::VisionThread() {
   cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture(0);
-  frc::AprilTagDetector detector;
   cs::CvSource outStream =
       frc::CameraServer::PutVideo("front", VisionConstants::frontCameraXRes,
                                   VisionConstants::frontCameraYRes);
