@@ -13,13 +13,37 @@ Elevator::Elevator()
           rev::SparkRelativeEncoder::Type::kQuadrature, 8192)} {
   this->elevationController.SetTolerance(2.5);
   // TODO: check
-  this->encoder.SetInverted(true);
+  this->motorL1.SetCANTimeout(75);
+
+  this->motorL1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 10);
+  this->motorL2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+  this->motorR2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+
+  this->motorL2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+  this->motorR2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+
+  this->motorL2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->motorR2.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
 }
 
 bool Elevator::topPressed() { return this->topLimit.Get(); }
 bool Elevator::botPressed() { return this->botLimit.Get(); }
 
 void Elevator::setMotors(double powerPercent) {
+  powerPercent = -powerPercent;
   // do not over reach the limit switches
   if ((powerPercent > 0 && this->topPressed()) ||
       (powerPercent < 0 && this->botPressed())) {
@@ -71,14 +95,18 @@ int Elevator::getTopTicks() {
 
 units::degree_t Elevator::getTopDegs() {
   // https://www.desmos.com/calculator/4vcdc3fi7o
-  return (90_deg * ElevatorConstants::gearRatio * this->encoder.GetPosition()) /
-         this->encoder.GetCountsPerRevolution();
+  return (90_deg * ElevatorConstants::gearRatio *
+          (float)this->encoder.GetPosition());
 }
 
 void Elevator::Periodic() {
-  if (this->botPressed()) {
+  if (this->botPressed() && !this->prevBot) {
     this->encoder.SetPosition(0);
-  } else if (this->topPressed()) {
-    this->encoder.SetPosition(8192 / ElevatorConstants::gearRatio);
+  } else if (this->topPressed() && !this->prevTop) {
+    this->encoder.SetPosition(1 / ElevatorConstants::gearRatio);
+    frc::SmartDashboard::PutBoolean("top", true);
   }
+  this->prevBot = this->botPressed();
+  this->prevTop = this->topPressed();
+  std::cout << this->getTopDegs().value() << '\n';
 }

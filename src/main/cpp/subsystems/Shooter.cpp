@@ -6,6 +6,18 @@
 
 Shooter::Shooter() {
   this->motorR1.Follow(this->motorL1, true);
+  this->motorL1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+  this->motorL1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+  this->motorL1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->motorR1.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
   // this->motorL2.Follow(this->motorL1, false);
   // this->motorR2.Follow(this->motorL1, true);
 }

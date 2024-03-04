@@ -59,7 +59,7 @@ const units::meter_t diagonal = units::inch_t{std::sqrt(
 
 namespace ElevatorConstants {
 
-const double speed = 0.50;
+const double speed = 1.00;
 const double gearRatio = 7 / 32;
 enum setpointOptions { bottom, source, amp, speaker, climb };
 // (x + y) / 2 takes average of max and min angles

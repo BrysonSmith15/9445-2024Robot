@@ -24,6 +24,11 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
   this->driveEncoder.SetVelocityConversionFactor(this->gearRatio);
   this->driveMotor.SetInverted(driveInverted);
   this->turnMotor.SetInverted(turnInverted);
+
+  this->driveMotor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->turnMotor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
 }
 
 void SwerveModule::stop() {

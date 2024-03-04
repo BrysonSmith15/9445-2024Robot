@@ -19,7 +19,7 @@ void LEDChase::Initialize() {
 void LEDChase::Execute() {
   this->counter++;
   // slow it down a little bit
-  if (this->counter % 1 == 0) {
+  if (this->counter % 2 == 0) {
     this->chasePoint++;
     this->chasePoint %= this->led->stripLen;
   }

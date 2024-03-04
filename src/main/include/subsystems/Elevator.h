@@ -50,4 +50,6 @@ class Elevator : public frc2::SubsystemBase {
   rev::SparkRelativeEncoder encoder;
 
   frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
+  bool prevTop = false;
+  bool prevBot = false;
 };
