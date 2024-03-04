@@ -48,6 +48,8 @@ void Elevator::setMotors(double powerPercent) {
   if ((powerPercent > 0 && this->topPressed()) ||
       (powerPercent < 0 && this->botPressed())) {
     powerPercent = 0;
+  } else {
+    powerPercent = this->limiter.Calculate(powerPercent);
   }
   this->motorL1.Set(powerPercent);
   this->motorL2.Set(powerPercent);
@@ -84,27 +86,28 @@ void Elevator::setMotors(double powerPercent) {
 }
 
 double Elevator::calcPID(double setpoint) {
-  return this->elevationController.Calculate(this->getTopDegs().value(),
-                                             setpoint);
-}
-
-int Elevator::getTopTicks() {
-  return (int)(this->encoder.GetPosition() * ElevatorConstants::gearRatio);
-  // return 0;
+  return !this->elevationController.AtSetpoint()
+             ? this->elevationController.Calculate(this->getTopDegs().value(),
+                                                   setpoint)
+             : 0.0;
 }
 
 units::degree_t Elevator::getTopDegs() {
   // https://www.desmos.com/calculator/4vcdc3fi7o
-  return (90_deg * ElevatorConstants::gearRatio *
-          (float)this->encoder.GetPosition());
+  // TODO: Make sure encoder measures rotations, not ticks
+  // ticks -> 0=>8192+, rotations-> 0=>4+
+  if (this->lastTouchedBottom) {
+    return (90_deg * ElevatorConstants::gearRatio * this->encoder.Get());
+  } else {
+    return 90_deg * (1 - ElevatorConstants::gearRatio * this->encoder.Get());
+  }
 }
 
 void Elevator::Periodic() {
-  if (this->botPressed() && !this->prevBot) {
+  if (this->botPressed()) {
     this->encoder.SetPosition(0);
-  } else if (this->topPressed() && !this->prevTop) {
-    this->encoder.SetPosition(1 / ElevatorConstants::gearRatio);
-    frc::SmartDashboard::PutBoolean("top", true);
+  } else if (this->topPressed()) {
+    this->encoder.SetPosition(8192 / ElevatorConstants::gearRatio);
   }
   this->prevBot = this->botPressed();
   this->prevTop = this->topPressed();
