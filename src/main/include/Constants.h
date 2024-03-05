@@ -24,7 +24,7 @@ namespace OperatorConstants {
 
 inline constexpr int kDriverControllerPort = 0;
 inline constexpr int kSecondControllerPort = 1;
-const bool usingFieldOrientedTurn = true;
+const bool usingFieldOrientedTurn = false;
 
 }  // namespace OperatorConstants
 
@@ -43,8 +43,8 @@ const int elevatorAmpButton = 2;
 
 const int trackSpeakerAxis = 2;
 
-const int elevatorManualUpButton = 7;
-const int elevatorManualDownButton = 8;
+const int elevatorManualUpButton = 8;
+const int elevatorManualDownButton = 7;
 
 }  // namespace BindingConstants
 
@@ -59,8 +59,8 @@ const units::meter_t diagonal = units::inch_t{std::sqrt(
 
 namespace ElevatorConstants {
 
-const double speed = 1.00;
-const double gearRatio = 7 / 32;
+const double speed = 0.52;
+const double gearRatio = 7.0 / 32.0;
 enum setpointOptions { bottom, source, amp, speaker, climb };
 // (x + y) / 2 takes average of max and min angles
 const units::degree_t bottomTicks = 0_deg;

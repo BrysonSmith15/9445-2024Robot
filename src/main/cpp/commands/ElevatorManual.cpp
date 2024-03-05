@@ -3,6 +3,9 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "commands/ElevatorManual.h"
+
+#include <iostream>
+
 ElevatorManual::ElevatorManual(Elevator* elevator, double power)
     : elevator{elevator}, power{power} {
   // Register that this command requires the subsystem.
@@ -16,4 +19,7 @@ bool ElevatorManual::IsFinished() {
          (this->elevator->botPressed() && this->power < 0);
 }
 
-void ElevatorManual::End(bool _) { this->elevator->setMotors(0.0); }
+void ElevatorManual::End(bool interrupted) {
+  this->elevator->setMotors(0.0);
+  std::cout << (interrupted ? "Interrupted\n" : "Not\n");
+}
