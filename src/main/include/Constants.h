@@ -61,6 +61,8 @@ namespace ElevatorConstants {
 
 const double speed = 0.52;
 const double gearRatio = 7.0 / 32.0;
+const int stableTicks = 0;
+const int stableSpeed = 0.3;
 enum setpointOptions { bottom, source, amp, speaker, climb };
 // (x + y) / 2 takes average of max and min angles
 const units::degree_t bottomTicks = 0_deg;

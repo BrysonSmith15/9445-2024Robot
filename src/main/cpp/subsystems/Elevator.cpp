@@ -55,20 +55,12 @@ void Elevator::setMotors(double powerPercent) {
   this->motorR2.Set(powerPercent);
 }
 
+int Elevator::getTicks() { return this->encoder.Get(); }
+
 double Elevator::calcPID(double setpoint) {
   return !this->elevationController.AtSetpoint()
-             ? this->elevationController.Calculate(this->getTopDegs().value(),
-                                                   setpoint)
+             ? this->elevationController.Calculate(this->getTicks(), setpoint)
              : 0.0;
-}
-
-units::degree_t Elevator::getTopDegs() {
-  // https://www.desmos.com/calculator/4vcdc3fi7o
-  // TODO: Make sure encoder measures rotations, not ticks
-  // ticks -> 0=>8192+, rotations-> 0=>4+
-  return (90_deg * ElevatorConstants::gearRatio *
-          (this->encoder.Get() / 8192)) +
-         30_deg;
 }
 
 void Elevator::Periodic() {
@@ -78,5 +70,5 @@ void Elevator::Periodic() {
   if (this->elevationController.AtSetpoint()) {
     this->elevationController.Reset();
   }
-  std::cout << this->getTopDegs().value() << ' ' << this->encoder.Get() << '\n';
+  std::cout << this->encoder.Get() << '\n';
 }

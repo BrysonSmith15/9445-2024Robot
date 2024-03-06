@@ -13,7 +13,13 @@ void ElevatorToBottom::Initialize() {
   this->elevator->setMotors(ElevatorConstants::speed);
 }
 
-void ElevatorToBottom::Execute() { this->elevator->setMotors(.06); }
+void ElevatorToBottom::Execute() {
+  if (this->elevator->getTicks() > ElevatorConstants::stableTicks) {
+    this->elevator->setMotors(.06);
+  } else {
+    this->elevator->setMotors(0);
+  }
+}
 
 bool ElevatorToBottom::IsFinished() { return this->elevator->botPressed(); }
 

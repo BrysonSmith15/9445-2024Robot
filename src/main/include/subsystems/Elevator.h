@@ -31,9 +31,9 @@ class Elevator : public frc2::SubsystemBase {
   double calcPID(double setpoint);
   bool topPressed();
   bool botPressed();
+  int getTicks();
 
   void setMotors(double powerPercent);
-  units::degree_t getTopDegs();
 
  private:
   // the motorL will be the master and R will be the follower motor

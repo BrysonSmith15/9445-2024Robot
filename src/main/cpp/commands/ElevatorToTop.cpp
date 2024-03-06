@@ -17,7 +17,11 @@ void ElevatorToTop::Initialize() {
 }
 
 void ElevatorToTop::Execute() {
-  this->elevator->setMotors(-ElevatorConstants::speed);
+  if (this->elevator->getTicks() < ElevatorConstants::stableTicks) {
+    this->elevator->setMotors(-ElevatorConstants::speed);
+  } else {
+    this->elevator->setMotors(-ElevatorConstants::stableSpeed);
+  }
 }
 
 bool ElevatorToTop::IsFinished() {
