@@ -54,7 +54,7 @@ class Drivetrain : public frc2::SubsystemBase {
   units::degree_t angleOff = 0.0_deg;
 
  private:
-  AHRS gyro{frc::I2C::Port::kOnboard};
+  //   AHRS gyro{frc::I2C::Port::kOnboard};
 
   const units::length::foot_t forwardDist = 10.5_in;
   const units::length::foot_t horizontalDist = 10.5_in;

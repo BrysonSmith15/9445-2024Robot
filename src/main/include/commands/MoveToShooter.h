@@ -26,12 +26,11 @@ class MoveToShooter : public frc2::CommandHelper<frc2::Command, MoveToShooter> {
    */
   explicit MoveToShooter(Intake* intake, double speed);
   void Initialize() override;
-  // void Execute() override;
+  void Execute() override;
   bool IsFinished() override;
   void End(bool interrupted) override;
 
  private:
   Intake* intake;
-  frc::Timer timer;
   double speed = 0.0;
 };

@@ -18,12 +18,12 @@ Shooter::Shooter() {
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
   this->motorR1.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
-  // this->motorL2.Follow(this->motorL1, false);
-  // this->motorR2.Follow(this->motorL1, true);
+  this->motorL2.Follow(this->motorL1, false);
+  this->motorR2.Follow(this->motorL1, true);
 }
 
 void Shooter::setMotors(double percentPower) {
-  this->motorL1.Set(this->speedLimiter.Calculate(percentPower));
+  this->motorL1.Set(percentPower);
 }
 
 double Shooter::getMotorOut() { return this->motorL1.GetAppliedOutput(); }

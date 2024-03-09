@@ -24,13 +24,13 @@ class Shooter : public frc2::SubsystemBase {
 
   void setMotors(double percentPower);
   double getMotorOut();
-  units::second_t secondsToFull = 1_s;
+  units::second_t secondsToFull = 0.5_s;
 
  private:
   rev::CANSparkMax motorL1{21, rev::CANSparkLowLevel::MotorType::kBrushed};
   rev::CANSparkMax motorR1{22, rev::CANSparkLowLevel::MotorType::kBrushed};
-  // rev::CANSparkMax motorL2{21, rev::CANSparkLowLevel::MotorType::kBrushed};
-  // rev::CANSparkMax motorR2{23, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorL2{31, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorR2{30, rev::CANSparkLowLevel::MotorType::kBrushed};
   // slow down motor acceleration a little for motor safety
   frc::SlewRateLimiter<units::scalar> speedLimiter{1 / secondsToFull};
 };

@@ -49,7 +49,7 @@ class Elevator : public frc2::SubsystemBase {
   frc::Encoder encoder{8, 9};
   bool lastTouchedBottom = false;
 
-  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
+  frc::SlewRateLimiter<units::scalar> limiter{2 / 1_s};
   bool prevTop = false;
   bool prevBot = false;
 };

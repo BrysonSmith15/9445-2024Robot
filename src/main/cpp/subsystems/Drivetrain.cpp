@@ -37,8 +37,8 @@ void Drivetrain::setStates(frc::SwerveModuleState fl, frc::SwerveModuleState fr,
 }
 
 units::angle::radian_t Drivetrain::getGyroAngle() {
-  return units::angle::degree_t{this->gyro.GetYaw()};
-  // return 0_rad;
+  // return units::angle::degree_t{this->gyro.GetYaw()};
+  return 0_rad;
 }
 
 frc2::CommandPtr Drivetrain::resetYaw(units::degree_t newOff) {

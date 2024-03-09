@@ -26,12 +26,11 @@ class Shoot : public frc2::CommandHelper<frc2::Command, Shoot> {
    */
   Shoot(Shooter* shooter);
   void Initialize() override;
-  // TODO: Figure out set and forget stuff (again)
-  // void Execute() override;
+  void Execute() override;
   bool IsFinished() override;
   void End(bool interrupted) override;
 
  private:
   Shooter* m_shooter;
-  frc::Timer timer;
+  const double speed = 1;
 };

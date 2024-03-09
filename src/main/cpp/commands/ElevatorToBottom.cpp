@@ -15,7 +15,7 @@ void ElevatorToBottom::Initialize() {
 
 void ElevatorToBottom::Execute() {
   if (this->elevator->getTicks() > ElevatorConstants::stableTicks) {
-    this->elevator->setMotors(.06);
+    this->elevator->setMotors(ElevatorConstants::stableDownSpeed);
   } else {
     this->elevator->setMotors(0);
   }

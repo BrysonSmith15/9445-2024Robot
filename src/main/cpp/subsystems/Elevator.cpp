@@ -6,8 +6,6 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
-#include <iostream>
-
 Elevator::Elevator() {
   this->elevationController.SetTolerance(2.5);
   // TODO: check
@@ -35,6 +33,8 @@ Elevator::Elevator() {
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
   this->motorR2.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+
+  this->encoder.SetReverseDirection(true);
 }
 
 bool Elevator::topPressed() { return this->topLimit.Get(); }
@@ -70,5 +70,4 @@ void Elevator::Periodic() {
   if (this->elevationController.AtSetpoint()) {
     this->elevationController.Reset();
   }
-  std::cout << this->encoder.Get() << '\n';
 }

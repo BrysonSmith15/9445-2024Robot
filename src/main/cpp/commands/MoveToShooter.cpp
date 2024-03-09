@@ -10,10 +10,9 @@ MoveToShooter::MoveToShooter(Intake* intake, double speed)
   AddRequirements(this->intake);
 }
 
-void MoveToShooter::Initialize() {
-  this->timer.Restart();
-  this->intake->run(speed);
-}
+void MoveToShooter::Initialize() { this->intake->run(speed); }
+
+void MoveToShooter::Execute() { this->intake->run(this->speed); }
 
 bool MoveToShooter::IsFinished() { return false; }
 

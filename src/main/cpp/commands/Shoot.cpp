@@ -9,13 +9,10 @@ Shoot::Shoot(Shooter* shooter) : m_shooter{shooter} {
   AddRequirements(shooter);
 }
 
-void Shoot::Initialize() {
-  this->timer.Restart();
-  this->m_shooter->setMotors(1.0);
-}
+void Shoot::Initialize() { this->m_shooter->setMotors(-this->speed); }
 
-// void Shoot::Execute() { this->m_shooter->setMotors(1.0); }
+void Shoot::Execute() { this->m_shooter->setMotors(-this->speed); }
 
-bool Shoot::IsFinished() { return this->timer.HasElapsed(10_s); }
+bool Shoot::IsFinished() { return false; }
 
 void Shoot::End(bool interrupted) { this->m_shooter->setMotors(0); }

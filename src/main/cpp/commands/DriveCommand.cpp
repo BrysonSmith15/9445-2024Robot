@@ -2,6 +2,8 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+#include "commands/DriveCommand.h"
+
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <units/time.h>
@@ -10,7 +12,6 @@
 #include <utility>
 
 #include "Constants.h"
-#include "commands/DriveCommand.h"
 
 DriveCommand::DriveCommand(Drivetrain* drivetrain,
                            std::function<double()> xTranslationSupplier,
@@ -30,19 +31,11 @@ void DriveCommand::Execute() {
   double y = this->yTranslation();
   double t = this->theta();
 
-  
-  frc::SmartDashboard::PutNumber("XTranslation", x);
-  frc::SmartDashboard::PutNumber("YTranslation", y);
-  frc::SmartDashboard::PutNumber("Theta", t);
-
   // should do field oriented??
   frc::Translation2d tVector =
       this->rotateByAngle(x, y, this->drivetrain->getGyroAngle());
   x = tVector.X().value();
   y = -tVector.Y().value();
-  frc::SmartDashboard::PutNumber("xTranslation", x);
-  frc::SmartDashboard::PutNumber("yTranslation", y);
-  frc::SmartDashboard::PutNumber("theta", t);
 
   double a =
       x - t * (DrivetrainConstants::length / DrivetrainConstants::diagonal);
@@ -80,7 +73,6 @@ void DriveCommand::Execute() {
     states[i]->speed = -speeds[i];
     states[i]->angle = -angles[i];
   }
-  frc::SmartDashboard::PutNumber("FL", flState.speed.value());
 
   this->drivetrain->setStates(flState, frState, blState, brState);
 }

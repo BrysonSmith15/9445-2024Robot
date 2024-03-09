@@ -4,8 +4,6 @@
 
 #include "commands/ElevatorToTop.h"
 
-#include <iostream>
-
 ElevatorToTop::ElevatorToTop(Elevator* elevator) : elevator{elevator} {
   // Register that this command requires the subsystem.
   AddRequirements(this->elevator);
@@ -13,20 +11,16 @@ ElevatorToTop::ElevatorToTop(Elevator* elevator) : elevator{elevator} {
 
 void ElevatorToTop::Initialize() {
   this->elevator->setMotors(-ElevatorConstants::speed);
-  std::cout << "GoingUp\n";
 }
 
 void ElevatorToTop::Execute() {
   if (this->elevator->getTicks() < ElevatorConstants::stableTicks) {
     this->elevator->setMotors(-ElevatorConstants::speed);
   } else {
-    this->elevator->setMotors(-ElevatorConstants::stableSpeed);
+    this->elevator->setMotors(-ElevatorConstants::stableUpSpeed);
   }
 }
 
-bool ElevatorToTop::IsFinished() {
-  std::cout << this->elevator->topPressed();
-  return this->elevator->topPressed();
-}
+bool ElevatorToTop::IsFinished() { return this->elevator->topPressed(); }
 
 void ElevatorToTop::End(bool _) { this->elevator->setMotors(0); }

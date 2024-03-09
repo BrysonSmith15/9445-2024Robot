@@ -14,11 +14,9 @@ void Intake::run(double speed) {
   this->motor.Set(this->limiter.Calculate(speed));
 }
 
-void Intake::stop() {
-  double out = this->limiter.Calculate(0);
-  frc::SmartDashboard::PutNumber("out", out);
-  this->motor.Set(out);
-}
+bool Intake::limitPressed() { return !this->limit.Get(); }
+
+void Intake::stop() { this->motor.Set(0); }
 
 void Intake::Periodic() {
   // Implementation of subsystem periodic method goes here.

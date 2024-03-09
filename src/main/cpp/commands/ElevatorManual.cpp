@@ -4,8 +4,6 @@
 
 #include "commands/ElevatorManual.h"
 
-#include <iostream>
-
 ElevatorManual::ElevatorManual(Elevator* elevator, double power)
     : elevator{elevator}, power{power} {
   // Register that this command requires the subsystem.
@@ -19,7 +17,4 @@ bool ElevatorManual::IsFinished() {
          (this->elevator->botPressed() && this->power < 0);
 }
 
-void ElevatorManual::End(bool interrupted) {
-  this->elevator->setMotors(0.0);
-  std::cout << (interrupted ? "Interrupted\n" : "Not\n");
-}
+void ElevatorManual::End(bool interrupted) { this->elevator->setMotors(0.0); }

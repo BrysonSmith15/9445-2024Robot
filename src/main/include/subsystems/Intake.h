@@ -22,9 +22,10 @@ class Intake : public frc2::SubsystemBase {
   void Periodic() override;
   void run(double speed);
   void stop();
+  bool limitPressed();
 
  private:
   rev::CANSparkMax motor{23, rev::CANSparkLowLevel::MotorType::kBrushless};
-  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s, -1 / 1_s};
+  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
   frc::DigitalInput limit{3};
 };

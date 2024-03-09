@@ -34,12 +34,10 @@ RobotContainer::RobotContainer() {
   ConfigureBindings();
   // not really a thread; just publishes the video
   // VisionThread();
-  /*
   this->drivetrain.SetDefaultCommand(DriveCommand(
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
       [this] { return this->getThetaState(); }));
-      */
   this->thetaController.EnableContinuousInput(-180, 180);
   this->thetaController.SetTolerance(30);
 
@@ -49,18 +47,20 @@ RobotContainer::RobotContainer() {
   // this->elevator.SetDefaultCommand(ElevatorToSetpoint(&elevator));
   // set the leds all to the BSHS orange color (from their website)
   // this->led.SetDefaultCommand(LEDSet(&this->led, 255, 50, 0));
-  this->led.SetDefaultCommand(
-      LEDChase(&this->led, 255, 50, 0, 255, 255, 255, 40));
-  this->elevator.SetDefaultCommand(
-      ElevatorManual(&this->elevator, 0.0).ToPtr());
+  // this->led.SetDefaultCommand(
+  // LEDChase(&this->led, 255, 50, 0, 150, 150, 150, 40));
+  // this->elevator.SetDefaultCommand(
+  // ElevatorManual(&this->elevator, 0.0).ToPtr());
   // this->intake.SetDefaultCommand(MoveToShooter(&this->intake, 0.0).ToPtr());
 }
 
 double RobotContainer::getXState() {
-  return frc::ApplyDeadband(this->driverController.GetX(), 0.1);
+  return this->xLimiter.Calculate(
+      frc::ApplyDeadband(this->driverController.GetX(), 0.1));
 }
 double RobotContainer::getYState() {
-  return -frc::ApplyDeadband(this->driverController.GetY(), 0.1);
+  return this->yLimiter.Calculate(
+      -frc::ApplyDeadband(this->driverController.GetY(), 0.1));
 }
 
 double RobotContainer::getThetaState() {
@@ -159,75 +159,61 @@ void RobotContainer::ConfigureBindings() {
            ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
            */
   // shooter to top
+  /*
   frc2::Trigger([this] {
-    return this->secondController.GetPOV() == BindingConstants::elevatorUpAngle;
-  }).OnTrue(ElevatorToTop(&this->elevator).ToPtr());
+    return this->secondController.GetPOV() ==
+           BindingConstants::elevatorManualUpAngle;
+  })
+      .WhileTrue(
+          ElevatorManual(&this->elevator, ElevatorConstants::speed).ToPtr());
   // shooter to bottom
   frc2::Trigger([this] {
     return this->secondController.GetPOV() ==
-           BindingConstants::elevatorDownAngle;
-  }).OnTrue(ElevatorToBottom(&this->elevator).ToPtr());
-  // Make the shooter run
-  /*
-  frc2::Trigger([this] {
-    return this->secondController.GetRawButton(BindingConstants::shootButton);
-  }).ToggleOnTrue(Shoot(&this->shooter).ToPtr());
+           BindingConstants::elevatorManualDownAngle;
+  });
   */
   /*
-  // move shooter to bottom
+    .WhileTrue(
+      */
+  // ElevatorManual(&this->elevator, -ElevatorConstants::speed).ToPtr());
+  frc2::JoystickButton(&this->secondController,
+                       BindingConstants::elevatorUpButton)
+      .OnTrue(ElevatorToTop(&this->elevator).ToPtr());
+  frc2::JoystickButton(&this->secondController,
+                       BindingConstants::elevatorDownButton)
+      .OnTrue(ElevatorToBottom(&this->elevator).ToPtr());
+  frc2::JoystickButton(&this->secondController, BindingConstants::intakeButton)
+      .WhileTrue(MoveToShooter(&this->intake, 0.1).ToPtr());
+  frc2::JoystickButton(&this->secondController, BindingConstants::intakeReverseButton)
+      .WhileTrue(MoveToShooter(&this->intake, -0.1).ToPtr());
   frc2::Trigger([this] {
-    return this->secondController.GetPOV(0) ==
-           BindingConstants::elevatorDownAngle;
-  })
-      .OnTrue(ElevatorToSetpoint(&this->elevator,
-                                 ElevatorConstants::setpointOptions::bottom)
-                  .ToPtr());
-  // move shooter to amp
+    return this->secondController.GetRawAxis(
+               BindingConstants::moveToShooterAxis) > 0.75;
+  }).WhileTrue(MoveToShooter(&this->intake, 1.0).ToPtr());
   frc2::Trigger([this] {
-    return this->secondController.GetRawButton(
-        BindingConstants::elevatorAmpButton);
-  })
-      .OnTrue(ElevatorToSetpoint(&this->elevator,
-                                 ElevatorConstants::setpointOptions::amp)
-                  .ToPtr());
-  // move shooter to source
-  frc2::Trigger([this] {
-    return this->secondController.GetRawButton(
-        BindingConstants::elevatorSourceButton);
-  })
-      .OnTrue(ElevatorToSetpoint(&this->elevator,
-                                 ElevatorConstants::setpointOptions::source)
-                  .ToPtr());
-  // move shooter to top position
-  frc2::Trigger([this] {
-    return this->driverController.GetPOV(0) ==
-           BindingConstants::elevatorUpAngle;
-  })
-      .OnTrue(ElevatorToSetpoint(&this->elevator,
-                                 ElevatorConstants::setpointOptions::climb)
-                  .ToPtr());
-// spin the shooter and then run the intake
-frc2::Trigger([this] {
-return this->secondController.GetRawButton(
-BindingConstants::shootCompositionTrigger) >= 0.3;
-})
-.OnTrue(
-Shoot(&this->shooter)
-.ToPtr()
-.AlongWith(frc2::WaitCommand(this->shooter.secondsToFull +
-0.25_s) .ToPtr()) .AndThen(MoveToShooter(&this->intake).ToPtr()));
-*/
-  // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    return this->secondController.GetRawAxis(
+               BindingConstants::moveToShooterAxis) > 0.25;
+  }).WhileTrue(Shoot(&this->shooter).ToPtr());
   /*
+  // spin the shooter and then run the intake
   frc2::Trigger([this] {
-    return m_subsystem.ExampleCondition();
-  }).OnTrue(ExampleCommand(&m_subsystem).ToPtr());
-*/
-  // Schedule `ExampleMethodCommand` when the Xbox controller's B button is
-  // pressed, cancelling on release.
-  // m_driverController.B().WhileTrue(m_subsystem.ExampleMethodCommand());
+  return this->secondController.GetRawButton(
+  BindingConstants::shootCompositionTrigger) >= 0.3;
+  })
+  .OnTrue(
+  Shoot(&this->shooter)
+  .ToPtr()
+  .AlongWith(frc2::WaitCommand(this->shooter.secondsToFull +
+  0.25_s) .ToPtr()) .AndThen(MoveToShooter(&this->intake).ToPtr()));
+  }
+  */
+  /*
+    frc2::Trigger([this] {
+      return this->intake.limitPressed();
+    }).WhileTrue(LEDSet(&this->led, 0, 255, 0).ToPtr());
+    */
 }
-
+// frc2::Trigger([this] { return Driver });
 /*
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
   auto ntInst = nt::NetworkTableInstance::GetDefault();
@@ -244,14 +230,12 @@ frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
       .AlongWith(
           frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s).ToPtr())
       .AndThen(MoveToShooter(&this->intake).ToPtr())
-      .AndThen(DriveDistance(&this->drivetrain, 6_ft + units::inch_t{4 + 1 / 8})
-                   .ToPtr());
+      .AndThen(DriveDistance(&this->drivetrain, 6_ft + units::inch_t{4 + 1 /
+8}) .ToPtr());
 }
 */
 
 void RobotContainer::VisionThread() {
   cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture(0);
-  cs::CvSource outStream =
-      frc::CameraServer::PutVideo("front", VisionConstants::frontCameraXRes,
-                                  VisionConstants::frontCameraYRes);
+  cs::CvSource outStream = frc::CameraServer::PutVideo("front", 640, 480);
 }
