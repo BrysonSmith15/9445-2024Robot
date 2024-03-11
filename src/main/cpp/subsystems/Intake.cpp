@@ -8,6 +8,19 @@
 
 Intake::Intake() {
   // Implementation of subsystem constructor goes here.
+  this->motor.SetCANTimeout(75);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus1, 100);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus3, 500);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus5, 500);
+  this->motor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus6, 500);
 }
 
 void Intake::run(double speed) {

@@ -7,7 +7,7 @@
 #include <functional>
 
 // frc
-#include <frc/I2C.h>
+#include <frc/SerialPort.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <frc2/command/CommandPtr.h>
@@ -39,12 +39,13 @@ class Drivetrain : public frc2::SubsystemBase {
   void setStates(wpi::array<frc::SwerveModuleState, 4U> states);
   void setStates(frc::SwerveModuleState fl, frc::SwerveModuleState fr,
                  frc::SwerveModuleState bl, frc::SwerveModuleState br);
+  frc2::CommandPtr setIdleMode(bool coast);
 
   units::angle::radian_t getGyroAngle();
   frc2::CommandPtr resetYaw(units::degree_t newOff);
   void resetDistance();
   units::foot_t getDistance();
-  units::velocity::meters_per_second_t MAXSPEED = 1_mps;
+  units::velocity::meters_per_second_t MAXSPEED = 5_fps;
   units::angular_velocity::radians_per_second_t MAXROT =
       (std::numbers::pi * 1_rad) / 2_s;
 
@@ -53,9 +54,9 @@ class Drivetrain : public frc2::SubsystemBase {
   // > 0 -> cw, < 0 -> ccw
   units::degree_t angleOff = 0.0_deg;
 
- private:
-  //   AHRS gyro{frc::I2C::Port::kOnboard};
+  AHRS gyro{frc::SerialPort::Port::kUSB1};
 
+ private:
   const units::length::foot_t forwardDist = 10.5_in;
   const units::length::foot_t horizontalDist = 10.5_in;
 
@@ -67,7 +68,7 @@ class Drivetrain : public frc2::SubsystemBase {
   const bool leftInverted = false;
   // drive, turnMotor, turnEncoder, driveInverted, turnInverted
   SwerveModule flModule{14, 12, 13, leftInverted, true};
-  SwerveModule frModule{11, 9, 10, !leftInverted, !leftInverted};
+  SwerveModule frModule{11, 9, 10, leftInverted, !leftInverted};
   SwerveModule blModule{17, 15, 16, leftInverted, true};
   SwerveModule brModule{8, 6, 7, !leftInverted, !leftInverted};
 

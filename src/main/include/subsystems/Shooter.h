@@ -28,9 +28,7 @@ class Shooter : public frc2::SubsystemBase {
 
  private:
   rev::CANSparkMax motorL1{21, rev::CANSparkLowLevel::MotorType::kBrushed};
-  rev::CANSparkMax motorR1{22, rev::CANSparkLowLevel::MotorType::kBrushed};
-  rev::CANSparkMax motorL2{31, rev::CANSparkLowLevel::MotorType::kBrushed};
-  rev::CANSparkMax motorR2{30, rev::CANSparkLowLevel::MotorType::kBrushed};
+  rev::CANSparkMax motorR1{30, rev::CANSparkLowLevel::MotorType::kBrushed};
   // slow down motor acceleration a little for motor safety
   frc::SlewRateLimiter<units::scalar> speedLimiter{1 / secondsToFull};
 };

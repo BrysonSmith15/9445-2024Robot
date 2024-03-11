@@ -7,6 +7,7 @@
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <rev/CANSparkLowLevel.h>
+#include <units/frequency.h>
 #include <units/time.h>
 
 SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
@@ -25,10 +26,13 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
   this->driveMotor.SetInverted(driveInverted);
   this->turnMotor.SetInverted(turnInverted);
 
-  this->driveMotor.SetPeriodicFramePeriod(
-      rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->turnMotor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 100);
+
   this->turnMotor.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->turnEncoder.OptimizeBusUtilization(1_s);
+  this->turnEncoder.GetAbsolutePosition().SetUpdateFrequency(100_Hz, 75_ms);
 }
 
 void SwerveModule::stop() {
@@ -77,41 +81,21 @@ void SwerveModule::setState(const frc::SwerveModuleState &refState) {
       this->driveLimiter.Calculate(state.speed.value()));
   */
   // ! use PID for Drive
-  double driveOut;
-  if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
-      std::numbers::pi / 4) {
-    driveOut = 0;
-  } else {
-    driveOut = this->driveLimiter.Calculate(state.speed.value());
-  }
+  double driveOut = state.speed.value();
   double turnOut = 0.0;
   if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
-      std::numbers::pi / 32) {
+      std::numbers::pi / 36) {
     turnOut = this->turningPIDController.Calculate(
-        this->getTurnAngle().value(),
-        this->turnLimiter.Calculate(state.angle.Radians().value()));
+        this->getTurnAngle().value(), state.angle.Radians().value());
   } else {
-    this->turningPIDController.Calculate(
-        this->getTurnAngle().value(),
-        this->turnLimiter.Calculate(state.angle.Radians().value()));
+    this->turningPIDController.Calculate(this->getTurnAngle().value(),
+                                         state.angle.Radians().value());
   }
   driveOut = driveOut > 1.0 ? 1.0 : driveOut;
   driveOut = driveOut < -1.0 ? -1.0 : driveOut;
 
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
   turnOut = turnOut < -1.0 ? -1.0 : turnOut;
-  /*  frc::SmartDashboard::PutNumber("TurnOut", turnOut);
-    frc::SmartDashboard::PutNumber("DriveOut", driveOut);
-    frc::SmartDashboard::PutNumber("driveSetpoint", state.speed.value());
-    frc::SmartDashboard::PutNumber("turnSetpoint",
-    state.angle.Radians().value()); frc::SmartDashboard::PutNumber("driveRate",
-    this->getDriveRate().value()); frc::SmartDashboard::PutNumber("turnAngle" +
-    this->turnMotor.GetDeviceId(), this->getTurnAngle().value());
-    frc::SmartDashboard::PutNumber("Encoder Value",
-                                   this->driveEncoder.GetPosition());
-    frc::SmartDashboard::PutNumber("Encoder Velocity",
-                                   this->driveEncoder.GetVelocity());
-  */
   this->driveMotor.Set(driveOut);
   this->turnMotor.Set(turnOut);
 }
@@ -141,3 +125,8 @@ void SwerveModule::SetDesiredState(
   m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
 }
 */
+
+void SwerveModule::setIdleMode(bool coast) {
+  this->driveMotor.SetIdleMode(coast ? rev::CANSparkBase::IdleMode::kCoast
+                                     : rev::CANSparkBase::IdleMode::kBrake);
+}

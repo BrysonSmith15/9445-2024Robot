@@ -34,6 +34,7 @@ class SwerveModule {
   units::angle::radian_t getTurnAngle();
   units::length::foot_t getDriveDistance();
   units::velocity::feet_per_second_t getDriveRate();
+  void setIdleMode(bool coast);
   void resetTurnAngle();
   void resetDriveDistance();
   void stop();
@@ -58,11 +59,9 @@ class SwerveModule {
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
       rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
-  frc::PIDController drivePIDController{6e-5, 1e-6, 0.0};
-  frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 1_s};
+  frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 2_s, -3 / 1_s};
 
   frc::PIDController turningPIDController{6e-2, 0.0, 0.0};
-  frc::SlewRateLimiter<units::scalar> turnLimiter{std::numbers::pi / 1_s};
   units::radian_t prevTheta = 0_rad;
   // the feedforward controllers have been removed
   // because they are going to be a pain to tune

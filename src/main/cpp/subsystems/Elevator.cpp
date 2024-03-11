@@ -6,13 +6,13 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <iostream>
+
 Elevator::Elevator() {
-  this->elevationController.SetTolerance(2.5);
-  // TODO: check
   this->motorL1.SetCANTimeout(75);
 
   this->motorL1.SetPeriodicFramePeriod(
-      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 10);
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
   this->motorL2.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 500);
   this->motorR1.SetPeriodicFramePeriod(
@@ -66,8 +66,5 @@ double Elevator::calcPID(double setpoint) {
 void Elevator::Periodic() {
   if (this->botPressed()) {
     this->encoder.Reset();
-  }
-  if (this->elevationController.AtSetpoint()) {
-    this->elevationController.Reset();
   }
 }

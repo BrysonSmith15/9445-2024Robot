@@ -4,9 +4,13 @@
 
 #include "commands/DriveCommand.h"
 
+#include <frc/kinematics/ChassisSpeeds.h>
+#include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveModuleState.h>
 #include <frc/smartdashboard/SmartDashboard.h>
+#include <units/angular_velocity.h>
 #include <units/time.h>
+#include <units/velocity.h>
 
 #include <functional>
 #include <utility>
@@ -31,7 +35,6 @@ void DriveCommand::Execute() {
   double y = this->yTranslation();
   double t = this->theta();
 
-  // should do field oriented??
   frc::Translation2d tVector =
       this->rotateByAngle(x, y, this->drivetrain->getGyroAngle());
   x = tVector.X().value();
@@ -68,12 +71,21 @@ void DriveCommand::Execute() {
   units::meters_per_second_t speeds[4] = {flSpeed, frSpeed, blSpeed, brSpeed};
   units::radian_t angles[4] = {flAngle, frAngle, blAngle, brAngle};
 
-  frc::SmartDashboard::PutNumber("PreFL", flSpeed.value());
   for (int i = 0; i < 4; i++) {
     states[i]->speed = -speeds[i];
     states[i]->angle = -angles[i];
   }
-
+  /*
+  auto speeds = frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+      this->xTranslation() * this->drivetrain->MAXSPEED,
+      this->yTranslation() * this->drivetrain->MAXSPEED,
+      units::angular_velocity::radians_per_second_t{this->theta() *
+                                                    this->drivetrain->MAXROT},
+      frc::Rotation2d(this->drivetrain->getGyroAngle()));
+  auto moduleStates =
+      this->drivetrain->m_kinematics.ToSwerveModuleStates(speeds);
+  this->drivetrain->m_kinematics.DesaturateWheelSpeeds(&moduleStates, 5.0_mps);
+  */
   this->drivetrain->setStates(flState, frState, blState, brState);
 }
 

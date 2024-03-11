@@ -36,9 +36,20 @@ void Drivetrain::setStates(frc::SwerveModuleState fl, frc::SwerveModuleState fr,
   brModule.setState(br);
 }
 
+frc2::CommandPtr Drivetrain::setIdleMode(bool coast) {
+  return this
+      ->RunOnce([this, coast] {
+        this->flModule.setIdleMode(coast);
+        this->frModule.setIdleMode(coast);
+        this->blModule.setIdleMode(coast);
+        this->brModule.setIdleMode(coast);
+      })
+      .IgnoringDisable(true);
+}
+
 units::angle::radian_t Drivetrain::getGyroAngle() {
-  // return units::angle::degree_t{this->gyro.GetYaw()};
-  return 0_rad;
+  return units::angle::degree_t{this->gyro.GetYaw()};
+  // return 0_rad;
 }
 
 frc2::CommandPtr Drivetrain::resetYaw(units::degree_t newOff) {
