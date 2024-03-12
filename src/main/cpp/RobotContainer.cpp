@@ -33,7 +33,7 @@ RobotContainer::RobotContainer() {
   // Configure the button bindings
   ConfigureBindings();
   // not really a thread; just publishes the video
-  // VisionThread();
+  VisionThread();
   this->drivetrain.SetDefaultCommand(DriveCommand(
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },

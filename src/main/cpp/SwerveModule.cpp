@@ -31,8 +31,6 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
 
   this->turnMotor.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
-  this->turnEncoder.OptimizeBusUtilization(1_s);
-  this->turnEncoder.GetAbsolutePosition().SetUpdateFrequency(100_Hz, 75_ms);
 }
 
 void SwerveModule::stop() {
