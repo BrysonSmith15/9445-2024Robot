@@ -102,7 +102,8 @@ void SwerveModule::setState(const frc::SwerveModuleState &refState) {
   driveOut = driveOut < -1.0 ? -1.0 : driveOut;
 
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
-  turnOut = turnOut < -1.0 ? -1.0 : turn this->driveMotor.Set(driveOut);
+  turnOut = turnOut < -1.0 ? -1.0 : turnOut;
+  this->driveMotor.Set(driveOut);
   this->turnMotor.Set(turnOut);
 }
 
