@@ -42,12 +42,12 @@ class Drivetrain : public frc2::SubsystemBase {
   frc2::CommandPtr setIdleMode(bool coast);
 
   units::angle::radian_t getGyroAngle();
-  frc2::CommandPtr resetYaw(units::degree_t newOff);
+  frc2::CommandPtr resetYaw();
   void resetDistance();
   units::foot_t getDistance();
-  units::velocity::meters_per_second_t MAXSPEED = 5_fps;
+  units::velocity::meters_per_second_t MAXSPEED = 2.5_fps;
   units::angular_velocity::radians_per_second_t MAXROT =
-      (std::numbers::pi * 1_rad) / 2_s;
+      (std::numbers::pi * 1.0_rad) / 1.0_s;
 
   frc::SwerveDriveKinematics<4> m_kinematics{flLocation, frLocation, blLocation,
                                              brLocation};
@@ -67,10 +67,10 @@ class Drivetrain : public frc2::SubsystemBase {
 
   const bool leftInverted = false;
   // drive, turnMotor, turnEncoder, driveInverted, turnInverted
-  SwerveModule flModule{14, 12, 13, leftInverted, true};
+  SwerveModule flModule{14, 12, 13, !leftInverted, true};
   SwerveModule frModule{11, 9, 10, leftInverted, !leftInverted};
-  SwerveModule blModule{17, 15, 16, leftInverted, true};
-  SwerveModule brModule{8, 6, 7, !leftInverted, !leftInverted};
+  SwerveModule blModule{17, 15, 16, !leftInverted, true};
+  SwerveModule brModule{8, 6, 7, leftInverted, !leftInverted};
 
   frc::SwerveDriveOdometry<4> m_odometry{
       m_kinematics,

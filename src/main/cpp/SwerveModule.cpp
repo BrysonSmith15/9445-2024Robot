@@ -10,6 +10,8 @@
 #include <units/frequency.h>
 #include <units/time.h>
 
+#include <iostream>
+
 SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
                            int turnEncoderCANID, bool driveInverted,
                            bool turnInverted)
@@ -28,9 +30,12 @@ SwerveModule::SwerveModule(int driveMotorCANID, int turnMotorCANID,
 
   this->turnMotor.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 100);
-
+  this->driveMotor.SetPeriodicFramePeriod(
+      rev::CANSparkLowLevel::PeriodicFrame::kStatus2, 100);
   this->turnMotor.SetPeriodicFramePeriod(
       rev::CANSparkLowLevel::PeriodicFrame::kStatus4, 500);
+  this->driveMotor.SetCANTimeout(75);
+  this->turnMotor.SetCANTimeout(75);
 }
 
 void SwerveModule::stop() {
@@ -81,8 +86,12 @@ void SwerveModule::setState(const frc::SwerveModuleState &refState) {
   // ! use PID for Drive
   double driveOut = state.speed.value();
   double turnOut = 0.0;
-  if (std::abs(state.angle.Radians().value() - this->getTurnAngle().value()) >
-      std::numbers::pi / 36) {
+  frc::SmartDashboard::PutBoolean(
+      "thing",
+      std::abs(units::degree_t{state.angle.Radians() - this->getTurnAngle()}
+                   .value()) > 1);
+  if (std::abs(units::degree_t{state.angle.Radians() - this->getTurnAngle()}
+                   .value()) > 1) {
     turnOut = this->turningPIDController.Calculate(
         this->getTurnAngle().value(), state.angle.Radians().value());
   } else {
@@ -93,8 +102,7 @@ void SwerveModule::setState(const frc::SwerveModuleState &refState) {
   driveOut = driveOut < -1.0 ? -1.0 : driveOut;
 
   turnOut = turnOut > 1.0 ? 1.0 : turnOut;
-  turnOut = turnOut < -1.0 ? -1.0 : turnOut;
-  this->driveMotor.Set(driveOut);
+  turnOut = turnOut < -1.0 ? -1.0 : turn this->driveMotor.Set(driveOut);
   this->turnMotor.Set(turnOut);
 }
 
@@ -125,6 +133,7 @@ void SwerveModule::SetDesiredState(
 */
 
 void SwerveModule::setIdleMode(bool coast) {
+  std::cout << "setting coast " << coast << '\n';
   this->driveMotor.SetIdleMode(coast ? rev::CANSparkBase::IdleMode::kCoast
                                      : rev::CANSparkBase::IdleMode::kBrake);
 }

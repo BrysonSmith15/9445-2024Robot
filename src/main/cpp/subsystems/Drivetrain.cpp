@@ -6,6 +6,8 @@
 
 #include <frc/smartdashboard/SmartDashboard.h>
 
+#include <iostream>
+
 Drivetrain::Drivetrain() {
   // Implementation of subsystem constructor goes here.
 }
@@ -52,8 +54,12 @@ units::angle::radian_t Drivetrain::getGyroAngle() {
   // return 0_rad;
 }
 
-frc2::CommandPtr Drivetrain::resetYaw(units::degree_t newOff) {
-  return this->RunOnce([this, &newOff] { this->angleOff = newOff; });
+frc2::CommandPtr Drivetrain::resetYaw() {
+  std::cout << "Reset\n";
+  return this->RunOnce([this] { this->gyro.Reset(); })
+      .IgnoringDisable(true)
+      .WithInterruptBehavior(
+          frc2::Command::InterruptionBehavior::kCancelIncoming);
 }
 
 void Drivetrain::resetDistance() {
@@ -73,5 +79,6 @@ void Drivetrain::Periodic() {
   m_odometry.Update(this->getGyroAngle(),
                     {flModule.GetPosition(), frModule.GetPosition(),
                      blModule.GetPosition(), brModule.GetPosition()});
-  frc::SmartDashboard::PutNumber("GyroAngle", this->getGyroAngle().value());
+  frc::SmartDashboard::PutNumber("Angle",
+                                 units::degree_t{this->getGyroAngle()}.value());
 }

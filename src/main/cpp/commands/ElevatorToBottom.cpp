@@ -9,9 +9,7 @@ ElevatorToBottom::ElevatorToBottom(Elevator* elevator) : elevator{elevator} {
   AddRequirements(this->elevator);
 }
 
-void ElevatorToBottom::Initialize() {
-  this->elevator->setMotors(ElevatorConstants::speed);
-}
+void ElevatorToBottom::Initialize() {}
 
 void ElevatorToBottom::Execute() {
   if (this->elevator->getTicks() > ElevatorConstants::stableTicks) {

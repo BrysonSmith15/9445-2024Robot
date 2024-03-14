@@ -59,9 +59,9 @@ class SwerveModule {
   rev::SparkRelativeEncoder driveEncoder = this->driveMotor.GetEncoder(
       rev::SparkRelativeEncoder::Type::kHallSensor, driveEncoderResolution);
 
-  frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 2_s, -3 / 1_s};
+  frc::SlewRateLimiter<units::scalar> driveLimiter{1 / 2_s, -5 / 1_s};
 
-  frc::PIDController turningPIDController{6e-2, 0.0, 0.0};
+  frc::PIDController turningPIDController{6e-1, 0.0, 0.0};
   units::radian_t prevTheta = 0_rad;
   // the feedforward controllers have been removed
   // because they are going to be a pain to tune

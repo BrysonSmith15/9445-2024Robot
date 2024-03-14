@@ -4,11 +4,11 @@
 
 #include "commands/Autos.h"
 
-#include <frc2/command/Commands.h>
+#include "commands/DriveDistance.h"
+#include "commands/ElevatorToTop.h"
+#include "commands/MoveToShooter.h"
+#include "commands/Shoot.h"
 
-#include "commands/ExampleCommand.h"
-
-frc2::CommandPtr autos::ExampleAuto(ExampleSubsystem* subsystem) {
-  return frc2::cmd::Sequence(subsystem->ExampleMethodCommand(),
-                             ExampleCommand(subsystem).ToPtr());
-}
+frc2::CommandPtr autos::ShootAndDrive(Drivetrain* drivetrain,
+                                      Elevator* elevator, Intake* intake,
+                                      Shooter* shooter) {}

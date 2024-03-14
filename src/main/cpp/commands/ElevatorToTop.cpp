@@ -9,9 +9,7 @@ ElevatorToTop::ElevatorToTop(Elevator* elevator) : elevator{elevator} {
   AddRequirements(this->elevator);
 }
 
-void ElevatorToTop::Initialize() {
-  this->elevator->setMotors(-ElevatorConstants::speed);
-}
+void ElevatorToTop::Initialize() {}
 
 void ElevatorToTop::Execute() {
   if (this->elevator->getTicks() < ElevatorConstants::stableTicks) {
@@ -19,8 +17,11 @@ void ElevatorToTop::Execute() {
   } else {
     this->elevator->setMotors(-ElevatorConstants::stableUpSpeed);
   }
+  if (this->elevator->topPressed()) {
+    this->elevator->setMotors(-ElevatorConstants::speed / 4);
+  }
 }
 
-bool ElevatorToTop::IsFinished() { return this->elevator->topPressed(); }
+bool ElevatorToTop::IsFinished() { return false; }
 
 void ElevatorToTop::End(bool _) { this->elevator->setMotors(0); }

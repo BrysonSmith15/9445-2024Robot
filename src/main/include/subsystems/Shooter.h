@@ -24,7 +24,7 @@ class Shooter : public frc2::SubsystemBase {
 
   void setMotors(double percentPower);
   double getMotorOut();
-  units::second_t secondsToFull = 0.5_s;
+  units::second_t secondsToFull = 0.25_s;
 
  private:
   rev::CANSparkMax motorL1{21, rev::CANSparkLowLevel::MotorType::kBrushed};

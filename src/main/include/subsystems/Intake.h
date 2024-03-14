@@ -26,6 +26,6 @@ class Intake : public frc2::SubsystemBase {
 
  private:
   rev::CANSparkMax motor{23, rev::CANSparkLowLevel::MotorType::kBrushless};
-  frc::SlewRateLimiter<units::scalar> limiter{1 / 1_s};
+  frc::SlewRateLimiter<units::scalar> limiter{1 / 2_s};
   frc::DigitalInput limit{3};
 };

@@ -4,9 +4,6 @@
 
 #pragma once
 
-#include <cameraserver/CameraServer.h>
-#include <frc/PneumaticHub.h>
-#include <frc/Solenoid.h>
 #include <frc/filter/SlewRateLimiter.h>
 #include <frc2/command/CommandPtr.h>
 #include <frc2/command/button/CommandJoystick.h>
@@ -28,16 +25,6 @@
 #include "commands/Shoot.h"
 // vision
 #include <cameraserver/CameraServer.h>
-#include <frc/apriltag/AprilTagDetection.h>
-#include <frc/apriltag/AprilTagDetector.h>
-#include <networktables/DoubleTopic.h>
-#include <networktables/NetworkTable.h>
-#include <networktables/NetworkTableInstance.h>
-
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/types.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <thread>
 
 /**
  * This class is where the bulk of the robot should be declared.  Since

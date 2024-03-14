@@ -37,7 +37,8 @@ RobotContainer::RobotContainer() {
   this->drivetrain.SetDefaultCommand(DriveCommand(
       &drivetrain, [this] { return this->getXState(); },
       [this] { return this->getYState(); },
-      [this] { return this->getThetaState(); }));
+      [this] { return this->getThetaState(); },
+      [this] { return this->driverController.GetRawAxis(3) < 0.25; }));
 
   // if (this->driverController.Button(1).Get()) {
   // this->drivetrain.resetYaw();
@@ -53,18 +54,18 @@ RobotContainer::RobotContainer() {
 }
 
 double RobotContainer::getXState() {
-  return this->xLimiter.Calculate(
-      frc::ApplyDeadband(this->driverController.GetX(), 0.1));
-  // return frc::ApplyDeadband(this->driverController.GetX(), 0.1);
+  // return this->xLimiter.Calculate(
+  // frc::ApplyDeadband(this->driverController.GetX(), 0.1));
+  return frc::ApplyDeadband(this->driverController.GetX(), 0.1);
 }
 double RobotContainer::getYState() {
-  return this->yLimiter.Calculate(
-      -frc::ApplyDeadband(this->driverController.GetY(), 0.1));
-  // return -frc::ApplyDeadband(this->driverController.GetY(), 0.1);
+  // return this->yLimiter.Calculate(
+  // -frc::ApplyDeadband(this->driverController.GetY(), 0.1));
+  return -frc::ApplyDeadband(this->driverController.GetY(), 0.1);
 }
 
 double RobotContainer::getThetaState() {
-  return -frc::ApplyDeadband(this->driverController.GetZ(), 0.1);
+  return -frc::ApplyDeadband(this->driverController.GetTwist(), 0.1);
 }
 
 void RobotContainer::ConfigureBindings() {
@@ -98,39 +99,50 @@ void RobotContainer::ConfigureBindings() {
       .WhileTrue(MoveToShooter(&this->intake, -0.1).ToPtr());
   frc2::Trigger([this] {
     return this->secondController.GetRawAxis(
-               BindingConstants::moveToShooterAxis) > 0.75;
+               BindingConstants::moveToShooterAxis) > 0.85;
   }).WhileTrue(MoveToShooter(&this->intake, 1.0).ToPtr());
   frc2::Trigger([this] {
     return this->secondController.GetRawAxis(
-               BindingConstants::moveToShooterAxis) > 0.25;
+               BindingConstants::moveToShooterAxis) > 0.15;
   }).WhileTrue(Shoot(&this->shooter).ToPtr());
 
   // brake while enabled and coast while disabled
   frc2::Trigger([this] { return frc::DriverStation::IsEnabled(); })
       .OnTrue(this->drivetrain.setIdleMode(false))
+      .OnTrue(LEDChase(&this->led, 255, 255, 255,
+                       frc::DriverStation::GetAlliance() ==
+                               frc::DriverStation::Alliance::kRed
+                           ? 255
+                           : 0,
+                       0,
+                       frc::DriverStation::GetAlliance() ==
+                               frc::DriverStation::Alliance::kBlue
+                           ? 255
+                           : 0,
+                       40)
+                  .ToPtr())
       .OnFalse(this->drivetrain.setIdleMode(true));
+  frc2::Trigger([this] {
+    return this->driverController.GetRawButton(5);
+  }).OnTrue(this->drivetrain.resetYaw());
 }
-// frc2::Trigger([this] { return Driver });
-/*
 frc2::CommandPtr RobotContainer::GetAutonomousCommand() {
-  auto ntInst = nt::NetworkTableInstance::GetDefault();
-  auto table = ntInst.GetTable("visionTable");
-  nt::DoublePublisher sourceXPublisher =
-      table->GetDoubleTopic("sourceCenterX").Publish();
-  return this->drivetrain
-      .resetYaw(180_deg - ((sourceXPublisher.GetTopic().GetEntry(0.0).Get() /
-                            VisionConstants::frontCameraXRes) *
-                           VisionConstants::frontCameraHFOV))
-      .AndThen(ElevatorToSetpoint(&this->elevator, ElevatorConstants::speaker)
-                   .ToPtr())
-      .AndThen(Shoot(&this->shooter).ToPtr())
-      .AlongWith(
-          frc2::WaitCommand(this->shooter.secondsToFull + 0.25_s).ToPtr())
-      .AndThen(MoveToShooter(&this->intake).ToPtr())
-      .AndThen(DriveDistance(&this->drivetrain, 6_ft + units::inch_t{4 + 1 /
-8}) .ToPtr());
+  return ElevatorToTop(&this->elevator)
+      .ToPtr()
+      .WithTimeout(1_s)
+      .AndThen(frc2::WaitCommand(1_s).ToPtr())
+      .AndThen(MoveToShooter(&this->intake, -0.1).ToPtr().WithTimeout(1_s))
+      .AndThen(frc2::WaitCommand(1_s).ToPtr())
+      .AndThen(
+          Shoot(&this->shooter)
+              .ToPtr()
+              .WithTimeout(3_s)
+              .AndThen(frc2::WaitCommand(1_s).ToPtr())
+              .AlongWith(
+                  MoveToShooter(&this->intake, 1.0).ToPtr().WithTimeout(3_s)))
+      .AndThen(DriveDistance(&this->drivetrain, -6.0_ft).ToPtr())
+      .WithTimeout(1_s);
 }
-*/
 
 void RobotContainer::VisionThread() {
   cs::UsbCamera outCamera = frc::CameraServer::StartAutomaticCapture(0);

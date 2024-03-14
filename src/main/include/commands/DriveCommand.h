@@ -37,7 +37,8 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   DriveCommand(Drivetrain* drivetrain,
                std::function<double()> xTranslationSupplier,
                std::function<double()> yTranslationSupplier,
-               std::function<double()> thetaSupplier);
+               std::function<double()> thetaSupplier,
+               std::function<bool()> fieldOriented);
   void Execute() override;
   void End(bool interrupted) override;
 
@@ -46,6 +47,7 @@ class DriveCommand : public frc2::CommandHelper<frc2::Command, DriveCommand> {
   std::function<double()> xTranslation;
   std::function<double()> yTranslation;
   std::function<double()> theta;
+  std::function<bool()> fieldOriented;
   double prevX = 0;
   double prevY = 0;
   double prevT = 0;

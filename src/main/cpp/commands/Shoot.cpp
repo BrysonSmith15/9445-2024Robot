@@ -9,7 +9,7 @@ Shoot::Shoot(Shooter* shooter) : m_shooter{shooter} {
   AddRequirements(shooter);
 }
 
-void Shoot::Initialize() { this->m_shooter->setMotors(-this->speed); }
+void Shoot::Initialize() {}
 
 void Shoot::Execute() { this->m_shooter->setMotors(-this->speed); }
 
